@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Messages — DiabetiCare{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>📬 Messages {% if unread_count %}<span class="badge badge-danger">{{ unread_count }} new</span>{% endif %}</h1>
+</div>
+<div class="d-flex justify-between align-center mb-lg"><a href="{{ url_for('messaging.compose') }}"
+        class="btn btn-primary">✉️ Compose</a></div>
+<div class="tabs mb-lg" id="msg-tabs">
+    <button class="tab active" onclick="showTab('received', this)">Received</button>
+    <button class="tab" onclick="showTab('sent', this)">Sent</button>
+</div>
+<div class="card fade-in-up" id="tab-received">
+    {% if received %}
+    {% for msg in received %}
+    <a href="{{ url_for('messaging.read', msg_id=msg.id) }}" class="message-item {{ 'unread' if not msg.read }}"
+        style="display: flex; text-decoration: none; color: inherit;">
+        <div class="user-avatar" style="width: 36px; height: 36px; font-size: var(--font-size-xs);">{{
+            msg.sender.name[0]|upper }}</div>
+        <div class="reminder-content">
+            <div class="reminder-title">{{ msg.subject or '(No subject)' }}{% if not msg.read %} <span
+                    class="badge badge-primary">New</span>{% endif %}</div>
+            <div class="reminder-time">From: {{ msg.sender.name }} · {{ msg.created_at.strftime('%d %b %Y, %I:%M %p') }}
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+    {% else %}<div class="empty-state" style="padding: var(--space-md);">
+        <p>No messages received.</p>
+    </div>{% endif %}
+</div>
+<div class="card fade-in-up hidden" id="tab-sent">
+    {% if sent %}
+    {% for msg in sent %}
+    <a href="{{ url_for('messaging.read', msg_id=msg.id) }}" class="message-item"
+        style="display: flex; text-decoration: none; color: inherit;">
+        <div class="reminder-content">
+            <div class="reminder-title">{{ msg.subject or '(No subject)' }}</div>
+            <div class="reminder-time">To: {{ msg.recipient.name }} · {{ msg.created_at.strftime('%d %b %Y, %I:%M %p')
+                }}</div>
+        </div>
+    </a>
+    {% endfor %}
+    {% else %}<div class="empty-state" style="padding: var(--space-md);">
+        <p>No sent messages.</p>
+    </div>{% endif %}
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    function showTab(tab, btn) {
+        document.getElementById('tab-received').classList.toggle('hidden', tab !== 'received');
+        document.getElementById('tab-sent').classList.toggle('hidden', tab !== 'sent');
+        document.querySelectorAll('#msg-tabs .tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+    }
+</script>
+{% endblock %}

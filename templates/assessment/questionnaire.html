@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Self-Assessment — DiabetiCare{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>📋 Self-Assessment</h1>
+    <p>Evaluate your diabetes self-management practices</p>
+</div>
+<div class="card fade-in-up" style="max-width: 700px;">
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% for q in questions %}
+        <div
+            style="margin-bottom: var(--space-xl); padding-bottom: var(--space-lg); border-bottom: 1px solid var(--border-light);">
+            <h3 style="margin-bottom: var(--space-md);">{{ loop.index }}. {{ q.text }}</h3>
+            <div style="display: flex; flex-direction: column; gap: var(--space-sm);">
+                {% for opt in q.options %}
+                <label class="form-check"
+                    style="padding: var(--space-sm) var(--space-md); border: 2px solid var(--border); border-radius: var(--radius); cursor: pointer;">
+                    <input type="radio" name="q_{{ q.id }}" value="{{ opt }}" required
+                        style="accent-color: var(--primary);">
+                    <span>{{ opt }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary btn-lg btn-block">Get My Results</button>
+    </form>
+</div>
+{% if past %}
+<div class="card mt-xl fade-in-up" style="max-width: 700px;">
+    <h3 style="margin-bottom: var(--space-md);">Previous Assessments</h3>
+    <ul class="reminder-list">
+        {% for a in past %}
+        <li class="reminder-item">
+            <div class="reminder-content">
+                <div class="reminder-title">Score: {{ a.score }}/{{ a.max_score }} ({{ (a.score / a.max_score *
+                    100)|round|int }}%)</div>
+                <div class="reminder-time">{{ a.completed_at.strftime('%d %b %Y') }}</div>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Set Preferences — DiabetiCare{% endblock %}
+
+{% block content %}
+<div class="auth-page" style="margin: calc(-1 * var(--space-lg)); min-height: 100vh;">
+    <div class="auth-card" style="max-width: 500px;">
+        <div style="text-align: center; margin-bottom: var(--space-lg);">
+            <div class="welcome-logo"
+                style="width: 56px; height: 56px; font-size: 1.8rem; margin: 0 auto var(--space-md);">⚙️</div>
+            <h2 style="margin-bottom: var(--space-xs);">Set Your Preferences</h2>
+            <p class="text-muted">Choose what reminders and tips you'd like</p>
+        </div>
+
+        <form method="POST" class="auth-form">
+            {{ form.hidden_tag() }}
+
+            <div class="card" style="margin-bottom: var(--space-lg); padding: var(--space-lg);">
+                <h3 style="font-size: var(--font-size-lg); font-weight: 600; margin-bottom: var(--space-md);">🔔
+                    Reminders</h3>
+                <div class="form-check">
+                    {{ form.reminder_medication(id="pref-med") }}
+                    {{ form.reminder_medication.label }}
+                </div>
+                <div class="form-check">
+                    {{ form.reminder_glucose(id="pref-glucose") }}
+                    {{ form.reminder_glucose.label }}
+                </div>
+                <div class="form-check">
+                    {{ form.reminder_appointments(id="pref-appt") }}
+                    {{ form.reminder_appointments.label }}
+                </div>
+            </div>
+
+            <div class="card" style="margin-bottom: var(--space-lg); padding: var(--space-lg);">
+                <h3 style="font-size: var(--font-size-lg); font-weight: 600; margin-bottom: var(--space-md);">💡
+                    Education & Tips</h3>
+                <div class="form-check">
+                    {{ form.receive_tips(id="pref-tips") }}
+                    {{ form.receive_tips.label }}
+                </div>
+            </div>
+
+            {{ form.submit(class="btn btn-primary btn-lg btn-block") }}
+        </form>
+    </div>
+</div>
+{% endblock %}

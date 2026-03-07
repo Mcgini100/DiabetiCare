@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Complications Tracker — DiabetiCare{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>⚠️ Complications Tracker</h1>
+    <p>Log symptoms, events, and access emergency guidance</p>
+</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg);">
+    <div class="card fade-in-up">
+        <h3 style="margin-bottom: var(--space-lg);">Log Event</h3>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="form-row">
+                <div class="form-group">{{ form.complication_type.label }}{{
+                    form.complication_type(class="form-control", id="comp-type") }}</div>
+                <div class="form-group">{{ form.severity.label }}{{ form.severity(class="form-control",
+                    id="comp-severity") }}</div>
+            </div>
+            <div class="form-group">{{ form.date_time.label }}{{ form.date_time(class="form-control", id="comp-date") }}
+            </div>
+            <div class="form-group">{{ form.symptoms.label }}{{ form.symptoms(class="form-control",
+                placeholder="Describe symptoms...", id="comp-symptoms", rows="2") }}</div>
+            <div class="form-group">{{ form.action_taken.label }}{{ form.action_taken(class="form-control",
+                placeholder="What did you do?", id="comp-action", rows="2") }}</div>
+            <div class="form-group">{{ form.notes.label }}{{ form.notes(class="form-control", id="comp-notes", rows="2")
+                }}</div>
+            {{ form.submit(class="btn btn-primary btn-lg") }}
+        </form>
+    </div>
+    <div>
+        <!-- Emergency Guidance -->
+        <div class="card fade-in-up mb-lg" style="border-left: 4px solid var(--danger);">
+            <h3 style="color: var(--danger); margin-bottom: var(--space-md);">🚨 Emergency Guidance</h3>
+            {% for key, info in guidance.items() %}
+            <div style="margin-bottom: var(--space-lg);">
+                <h4>{{ info.icon }} {{ info.title }}</h4>
+                <ol style="margin-left: var(--space-lg); margin-top: var(--space-sm);">
+                    {% for step in info.steps %}<li style="margin-bottom: 4px; font-size: var(--font-size-sm);">{{ step
+                        }}</li>{% endfor %}
+                </ol>
+            </div>
+            {% endfor %}
+        </div>
+        {% if history %}
+        <div class="card fade-in-up">
+            <h3 style="margin-bottom: var(--space-md);">Recent Events</h3>
+            <ul class="reminder-list">
+                {% for c in history[:5] %}
+                <li class="reminder-item">
+                    <div class="reminder-icon" style="background: #fef2f2; color: var(--danger);">⚠️</div>
+                    <div class="reminder-content">
+                        <div class="reminder-title">{{ c.complication_type|replace('_', ' ')|capitalize }} <span
+                                class="badge badge-{{ 'warning' if c.severity == 'mild' else ('danger' if c.severity == 'severe' else 'warning') }}">{{
+                                c.severity|capitalize }}</span></div>
+                        <div class="reminder-time">{{ c.date_time.strftime('%d %b %Y, %I:%M %p') }}</div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            <a href="{{ url_for('complications.history') }}" class="btn btn-sm btn-secondary mt-md">View All</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

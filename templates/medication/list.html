@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Medications — DiabetiCare{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>💊 Medication Management</h1>
+    <p>Track your medications and adherence</p>
+</div>
+
+<div class="d-flex justify-between align-center mb-lg">
+    <a href="{{ url_for('medication.add_medication') }}" class="btn btn-primary">+ Add Medication</a>
+    <a href="{{ url_for('medication.history') }}" class="btn btn-secondary">View History</a>
+</div>
+
+{% if active_meds %}
+<div class="card mb-xl fade-in-up">
+    <h3 style="margin-bottom: var(--space-md);">Active Medications</h3>
+    <ul class="reminder-list">
+        {% for med in active_meds %}
+        <li class="reminder-item">
+            <div class="reminder-icon"
+                style="background: {{ '#ecfdf5' if med.id in taken_ids else '#fff7ed' }}; color: {{ 'var(--success)' if med.id in taken_ids else 'var(--accent)' }};">
+                {{ '✓' if med.id in taken_ids else '💊' }}
+            </div>
+            <div class="reminder-content" style="flex: 1;">
+                <div class="reminder-title">{{ med.name }} — {{ med.dosage }}</div>
+                <div class="reminder-time">
+                    {{ format_frequency(med.frequency) }}
+                    {% if med.time_of_day %} · {{ med.time_of_day|capitalize }}{% endif %}
+                </div>
+                {% if med.side_effects %}
+                <div style="margin-top: 4px; font-size: var(--font-size-xs); color: var(--warning);">
+                    ⚠️ Side effects: {{ med.side_effects[:80] }}{{ '...' if med.side_effects|length > 80 }}
+                </div>
+                {% endif %}
+            </div>
+            <div class="d-flex gap-sm">
+                {% if med.id not in taken_ids %}
+                <a href="{{ url_for('medication.take_medication', medication_id=med.id) }}"
+                    class="btn btn-sm btn-primary">Take</a>
+                {% else %}
+                <span class="badge badge-success">Taken ✓</span>
+                {% endif %}
+                <a href="{{ url_for('medication.edit_medication', med_id=med.id) }}"
+                    class="btn btn-sm btn-secondary">Edit</a>
+                <a href="{{ url_for('medication.toggle_medication', med_id=med.id) }}"
+                    class="btn btn-sm btn-danger">Deactivate</a>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% else %}
+<div class="card mb-xl">
+    <div class="empty-state">
+        <div class="icon">💊</div>
+        <h3>No active medications</h3>
+        <p>Add your prescribed medications to track and manage them.</p>
+        <a href="{{ url_for('medication.add_medication') }}" class="btn btn-primary">Add Medication</a>
+    </div>
+</div>
+{% endif %}
+
+{% if inactive_meds %}
+<div class="card fade-in-up">
+    <h3 style="margin-bottom: var(--space-md); color: var(--text-muted);">Inactive Medications</h3>
+    <ul class="reminder-list">
+        {% for med in inactive_meds %}
+        <li class="reminder-item" style="opacity: 0.6;">
+            <div class="reminder-content">
+                <div class="reminder-title">{{ med.name }} — {{ med.dosage }}</div>
+            </div>
+            <a href="{{ url_for('medication.toggle_medication', med_id=med.id) }}"
+                class="btn btn-sm btn-secondary">Reactivate</a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+{% endblock %}

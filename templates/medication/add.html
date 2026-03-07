@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if editing else 'Add' }} Medication — DiabetiCare{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>💊 {{ 'Edit' if editing else 'Add' }} Medication</h1>
+</div>
+
+<div class="card fade-in-up" style="max-width: 600px;">
+    <form method="POST">
+        {{ form.hidden_tag() }}
+
+        <div class="form-group">
+            {{ form.name.label }}
+            {{ form.name(class="form-control", placeholder="e.g. Metformin", id="med-name") }}
+            {% for error in form.name.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                {{ form.dosage.label }}
+                {{ form.dosage(class="form-control", placeholder="e.g. 500mg", id="med-dosage") }}
+            </div>
+            <div class="form-group">
+                {{ form.frequency.label }}
+                {{ form.frequency(class="form-control", id="med-frequency") }}
+            </div>
+        </div>
+
+        <div class="form-group">
+            {{ form.time_of_day.label }}
+            {{ form.time_of_day(class="form-control", id="med-time") }}
+        </div>
+
+        <div class="form-group">
+            {{ form.side_effects.label }}
+            {{ form.side_effects(class="form-control", placeholder="Known side effects...", id="med-side", rows="2") }}
+        </div>
+
+        <div class="form-group">
+            {{ form.adverse_effects.label }}
+            {{ form.adverse_effects(class="form-control", placeholder="Adverse effects to watch for...",
+            id="med-adverse", rows="2") }}
+        </div>
+
+        <div class="form-group">
+            {{ form.instructions.label }}
+            {{ form.instructions(class="form-control", placeholder="e.g. Take with food", id="med-instructions",
+            rows="2") }}
+        </div>
+
+        <div class="d-flex gap-md">
+            {{ form.submit(class="btn btn-primary btn-lg") }}
+            <a href="{{ url_for('medication.list_medications') }}" class="btn btn-secondary btn-lg">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

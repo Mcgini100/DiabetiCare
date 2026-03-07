@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Community — DiabetiCare{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>👥 Community & Peer Support</h1>
+    <p>Connect, share, and support each other</p>
+</div>
+<div class="d-flex justify-between align-center mb-lg">
+    <div class="tabs" style="border: none; margin: 0;">
+        <a href="?" class="tab {{ 'active' if not category }}">All</a>
+        <a href="?category=general" class="tab {{ 'active' if category == 'general' }}">General</a>
+        <a href="?category=motivation" class="tab {{ 'active' if category == 'motivation' }}">Motivation</a>
+        <a href="?category=recipes" class="tab {{ 'active' if category == 'recipes' }}">Recipes</a>
+        <a href="?category=tips" class="tab {{ 'active' if category == 'tips' }}">Tips</a>
+        <a href="?category=questions" class="tab {{ 'active' if category == 'questions' }}">Questions</a>
+        <a href="?category=success" class="tab {{ 'active' if category == 'success' }}">Success</a>
+    </div>
+    <a href="{{ url_for('community.new_post') }}" class="btn btn-primary">+ New Post</a>
+</div>
+<div class="card fade-in-up">
+    {% if posts %}
+    <ul class="thread-list">
+        {% for post in posts %}
+        <li class="thread-item">
+            <div class="thread-avatar">{{ post.author.name[0]|upper }}</div>
+            <div class="thread-content" style="flex: 1;">
+                <h3><a href="{{ url_for('community.thread', post_id=post.id) }}">{{ post.title }}{% if post.pinned %}
+                        📌{% endif %}</a></h3>
+                <div class="thread-meta">
+                    <span>{{ post.author.name }}</span>
+                    <span>{{ post.created_at.strftime('%d %b %Y') }}</span>
+                    <span>{{ post.replies.count() }} replies</span>
+                    {% if post.category %}<span class="badge badge-primary">{{ post.category|capitalize }}</span>{%
+                    endif %}
+                </div>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <div class="empty-state">
+        <div class="icon">💬</div>
+        <h3>No posts yet</h3>
+        <p>Be the first to start a conversation!</p><a href="{{ url_for('community.new_post') }}"
+            class="btn btn-primary">Create Post</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

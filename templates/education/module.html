@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{{ module.title }} — DiabetiCare{% endblock %}
+{% block content %}
+<div class="page-header">
+    <span class="education-category cat-{{ module.category }}">{{ module.category|replace('_', ' ')|capitalize }}</span>
+    <h1>{{ module.title }}</h1>
+</div>
+<div class="card fade-in-up" style="max-width: 800px;">
+    <div style="line-height: 1.8; font-size: var(--font-size-base);">
+        {{ module.content|safe }}
+    </div>
+    <div class="d-flex gap-md mt-xl">
+        {% if module.quizzes.count() > 0 %}
+        <a href="{{ url_for('education.quiz', module_id=module.id) }}" class="btn btn-primary">Take Quiz 📝</a>
+        {% endif %}
+        <a href="{{ url_for('education.index') }}" class="btn btn-secondary">← Back to Resources</a>
+    </div>
+</div>
+{% endblock %}

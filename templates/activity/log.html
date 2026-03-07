@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Log Exercise — DiabetiCare{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>🏃 Physical Activity</h1>
+    <p>Track your exercise and stay active</p>
+</div>
+<!-- Weekly Progress -->
+<div class="card mb-xl fade-in-up">
+    <div class="d-flex justify-between align-center mb-md">
+        <h3>Weekly Progress</h3>
+        <span class="font-bold" style="color: var(--primary);">{{ weekly_total }} / 150 min</span>
+    </div>
+    <div class="progress-bar-container" style="height: 16px;">
+        <div class="progress-bar-fill"
+            style="width: {{ [weekly_total / 150 * 100, 100]|min }}%; background: linear-gradient(90deg, var(--accent), var(--accent-light));">
+        </div>
+    </div>
+    <p class="text-muted mt-sm" style="font-size: var(--font-size-sm);">{{ 'Goal reached! 🎉' if weekly_total >= 150
+        else '%d minutes remaining this week.' % (150 - weekly_total) }}</p>
+</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg);">
+    <div class="card fade-in-up">
+        <h3 style="margin-bottom: var(--space-lg);">Log Exercise</h3>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="form-group">{{ form.activity_type.label }}{{ form.activity_type(class="form-control",
+                id="act-type") }}</div>
+            <div class="form-row">
+                <div class="form-group">{{ form.duration_minutes.label }}{{ form.duration_minutes(class="form-control",
+                    placeholder="e.g. 30", id="act-duration") }}{% for e in form.duration_minutes.errors %}<span
+                        class="form-error">{{ e }}</span>{% endfor %}</div>
+                <div class="form-group">{{ form.intensity.label }}{{ form.intensity(class="form-control",
+                    id="act-intensity") }}</div>
+            </div>
+            <div class="form-group">{{ form.calories_burned.label }}{{ form.calories_burned(class="form-control",
+                placeholder="Optional", id="act-cal") }}</div>
+            <div class="form-group">{{ form.notes.label }}{{ form.notes(class="form-control", placeholder="Optional",
+                id="act-notes", rows="2") }}</div>
+            {{ form.submit(class="btn btn-primary btn-lg") }}
+        </form>
+    </div>
+    <div class="card fade-in-up">
+        <h3 style="margin-bottom: var(--space-lg);">Recent Activity</h3>
+        {% if recent %}
+        <ul class="reminder-list">
+            {% for e in recent %}
+            <li class="reminder-item">
+                <div class="reminder-icon" style="background: #fff7ed; color: var(--accent);">🏃</div>
+                <div class="reminder-content">
+                    <div class="reminder-title">{{ e.activity_type|capitalize }} · {{ e.duration_minutes }} min <span
+                            class="badge badge-{{ 'success' if e.intensity == 'low' else ('warning' if e.intensity == 'moderate' else 'danger') }}">{{
+                            e.intensity|capitalize }}</span></div>
+                    <div class="reminder-time">{{ e.logged_at.strftime('%d %b, %I:%M %p') }}{% if e.calories_burned %} ·
+                        {{ e.calories_burned }} cal{% endif %}</div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        <a href="{{ url_for('activity.history') }}" class="btn btn-sm btn-secondary mt-md">View All</a>
+        {% else %}
+        <div class="empty-state">
+            <div class="icon">🏃</div>
+            <h3>No activities logged</h3>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

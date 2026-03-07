@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Quiz Results — DiabetiCare{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>📊 Quiz Results: {{ module.title }}</h1>
+</div>
+<div class="card mb-xl fade-in-up" style="text-align: center; padding: var(--space-2xl);">
+    <div style="font-size: 4rem;">{{ '🎉' if pct >= 80 else ('👍' if pct >= 50 else '📖') }}</div>
+    <h2
+        style="font-size: var(--font-size-3xl); color: {{ 'var(--success)' if pct >= 80 else ('var(--warning)' if pct >= 50 else 'var(--info)') }};">
+        {{ score }}/{{ total }} ({{ pct }}%)
+    </h2>
+    <p class="text-muted">{{ 'Excellent! You know your stuff!' if pct >= 80 else ('Good effort! Review for improvement.'
+        if pct >= 50 else 'Keep learning! Review the module.') }}</p>
+</div>
+<div class="card fade-in-up" style="max-width: 700px;">
+    {% for r in results %}
+    <div
+        style="margin-bottom: var(--space-lg); padding: var(--space-md); background: {{ '#ecfdf5' if r.correct else '#fef2f2' }}; border-radius: var(--radius); border-left: 4px solid {{ 'var(--success)' if r.correct else 'var(--danger)' }};">
+        <div class="font-bold mb-sm">{{ r.question }}</div>
+        <div>Your answer: <strong>{{ r.user_answer|upper }}</strong> {{ '✓' if r.correct else '✗ (Correct: ' +
+            r.correct_answer|upper + ')' }}</div>
+        {% if r.explanation %}<p class="text-muted mt-sm" style="font-size: var(--font-size-sm);">💡 {{ r.explanation }}
+        </p>{% endif %}
+    </div>
+    {% endfor %}
+    <div class="d-flex gap-md mt-lg"><a href="{{ url_for('education.module', module_id=module.id) }}"
+            class="btn btn-secondary">Review Module</a><a href="{{ url_for('education.index') }}"
+            class="btn btn-primary">Back to Resources</a></div>
+</div>
+{% endblock %}

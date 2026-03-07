@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Welcome — DiabetiCare{% endblock %}
+
+{% block content %}
+<div class="welcome-page" style="margin: calc(-1 * var(--space-lg)); min-height: 100vh;">
+    <div class="welcome-card">
+        <div class="welcome-logo">💙</div>
+        <h1>DiabetiCare</h1>
+        <p>Your personal diabetes self-management assistant. Track your health, stay informed, and take control of your
+            wellbeing.</p>
+
+        <div style="display: flex; flex-direction: column; gap: var(--space-md);">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg btn-block">Get Started</a>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-outline btn-lg btn-block">Already have an account? Sign
+                In</a>
+        </div>
+
+        <div
+            style="margin-top: var(--space-xl); display: flex; justify-content: center; gap: var(--space-lg); color: var(--text-muted); font-size: var(--font-size-sm);">
+            <span>🩸 Track Glucose</span>
+            <span>💊 Manage Meds</span>
+            <span>📊 View Trends</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

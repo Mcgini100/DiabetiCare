@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Complications History — DiabetiCare{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>⚠️ Complications History</h1>
+</div>
+<div class="d-flex justify-between align-center mb-lg"><a href="{{ url_for('complications.log_complication') }}"
+        class="btn btn-primary">+ Log Event</a></div>
+<div class="card fade-in-up">
+    {% if events %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Severity</th>
+                    <th>Symptoms</th>
+                    <th>Action Taken</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in events %}
+                <tr>
+                    <td>{{ e.date_time.strftime('%d %b %Y, %I:%M %p') }}</td>
+                    <td>{{ e.complication_type|replace('_', ' ')|capitalize }}</td>
+                    <td><span
+                            class="badge badge-{{ 'success' if e.severity == 'mild' else ('warning' if e.severity == 'moderate' else 'danger') }}">{{
+                            e.severity|capitalize }}</span></td>
+                    <td>{{ (e.symptoms or '—')[:60] }}</td>
+                    <td>{{ (e.action_taken or '—')[:60] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}<div class="empty-state">
+        <div class="icon">✅</div>
+        <h3>No complications logged</h3>
+        <p>That's great news!</p>
+    </div>{% endif %}
+</div>
+{% endblock %}

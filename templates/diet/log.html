@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Diet & Nutrition — DiabetiCare{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>🥗 Diet & Nutrition</h1>
+    <p>Log meals and track your nutrition</p>
+</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg);">
+    <div class="card fade-in-up">
+        <h3 style="margin-bottom: var(--space-lg);">Log a Meal</h3>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="form-row">
+                <div class="form-group">{{ form.meal_type.label }}{{ form.meal_type(class="form-control",
+                    id="diet-type") }}</div>
+                <div class="form-group">{{ form.portion_size.label }}{{ form.portion_size(class="form-control",
+                    id="diet-portion") }}</div>
+            </div>
+            <div class="form-group">{{ form.food_items.label }}{{ form.food_items(class="form-control",
+                placeholder="e.g. Sadza, chicken, spinach (muriwo)", id="diet-items", rows="3") }}{% for e in
+                form.food_items.errors %}<span class="form-error">{{ e }}</span>{% endfor %}</div>
+            <div class="form-row">
+                <div class="form-group">{{ form.carbs_grams.label }}{{ form.carbs_grams(class="form-control",
+                    placeholder="e.g. 45", id="diet-carbs") }}</div>
+                <div class="form-group">{{ form.calories.label }}{{ form.calories(class="form-control",
+                    placeholder="e.g. 350", id="diet-cal") }}</div>
+            </div>
+            <div class="form-group">{{ form.notes.label }}{{ form.notes(class="form-control", placeholder="Optional
+                notes", id="diet-notes", rows="2") }}</div>
+            {{ form.submit(class="btn btn-primary btn-lg") }}
+        </form>
+    </div>
+    <div class="card fade-in-up">
+        <h3 style="margin-bottom: var(--space-lg);">Recent Meals</h3>
+        {% if recent %}
+        <ul class="reminder-list">
+            {% for m in recent %}
+            <li class="reminder-item">
+                <div class="reminder-icon" style="background: #ecfdf5; color: var(--success);">{{ '🌅' if m.meal_type ==
+                    'breakfast' else ('☀️' if m.meal_type == 'lunch' else ('🌙' if m.meal_type == 'dinner' else '🍎'))
+                    }}</div>
+                <div class="reminder-content">
+                    <div class="reminder-title">{{ m.meal_type|capitalize }} {% if m.carbs_grams %}<span
+                            class="badge badge-info">{{ m.carbs_grams }}g carbs</span>{% endif %}</div>
+                    <div class="reminder-time">{{ m.food_items[:60] }}{{ '...' if m.food_items|length > 60 }}</div>
+                    <div class="text-muted" style="font-size: var(--font-size-xs);">{{ m.logged_at.strftime('%d %b,
+                        %I:%M %p') }}</div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        <a href="{{ url_for('diet.history') }}" class="btn btn-sm btn-secondary mt-md">View All History</a>
+        {% else %}
+        <div class="empty-state">
+            <div class="icon">🥗</div>
+            <h3>No meals logged</h3>
+            <p>Start tracking your nutrition.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

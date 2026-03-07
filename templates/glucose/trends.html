@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+{% block title %}Glucose Trends — DiabetiCare{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📈 Blood Glucose Trends</h1>
+    <p>Track your blood glucose readings over time</p>
+</div>
+
+<!-- Period Filter -->
+<div class="tabs mb-lg">
+    <a href="?period=1" class="tab {{ 'active' if period == '1' }}">Today</a>
+    <a href="?period=7" class="tab {{ 'active' if period == '7' or not period }}">7 Days</a>
+    <a href="?period=14" class="tab {{ 'active' if period == '14' }}">14 Days</a>
+    <a href="?period=30" class="tab {{ 'active' if period == '30' }}">30 Days</a>
+    <a href="?period=90" class="tab {{ 'active' if period == '90' }}">90 Days</a>
+</div>
+
+<!-- Summary Stats -->
+<div class="dashboard-grid mb-xl">
+    <div class="card">
+        <div class="stat-card">
+            <div class="card-icon success">📊</div>
+            <div>
+                <div class="stat-label">Average</div>
+                <div class="stat-value" style="color: var(--primary);">{{ avg }} <span
+                        style="font-size: var(--font-size-sm);">mmol/L</span></div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="stat-card">
+            <div class="card-icon danger">📈</div>
+            <div>
+                <div class="stat-label">Highest</div>
+                <div class="stat-value" style="color: var(--danger);">{{ highest }} <span
+                        style="font-size: var(--font-size-sm);">mmol/L</span></div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="stat-card">
+            <div class="card-icon warning">📉</div>
+            <div>
+                <div class="stat-label">Lowest</div>
+                <div class="stat-value" style="color: var(--warning);">{{ lowest }} <span
+                        style="font-size: var(--font-size-sm);">mmol/L</span></div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="stat-card">
+            <div class="card-icon info">📝</div>
+            <div>
+                <div class="stat-label">Total Readings</div>
+                <div class="stat-value" style="color: var(--info);">{{ readings|length }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart -->
+<div class="card mb-xl fade-in-up">
+    <div class="card-header">
+        <h3>Glucose Trend</h3>
+        <div class="d-flex gap-sm">
+            <a href="{{ url_for('glucose.export') }}" class="btn btn-sm btn-secondary">📥 Export CSV</a>
+            <a href="{{ url_for('glucose.log') }}" class="btn btn-sm btn-primary">+ Log Reading</a>
+        </div>
+    </div>
+    {% if chart_values %}
+    <div class="chart-container" style="height: 350px;">
+        <canvas id="glucoseTrendChart"></canvas>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="icon">📊</div>
+        <h3>No data for this period</h3>
+        <p>Log some readings to see your trends here.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Readings Table -->
+<div class="card fade-in-up">
+    <div class="card-header">
+        <h3>All Readings</h3>
+    </div>
+    {% if readings %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date & Time</th>
+                    <th>Value</th>
+                    <th>Status</th>
+                    <th>Context</th>
+                    <th>Notes</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in readings %}
+                <tr>
+                    <td>{{ r.reading_time.strftime('%d %b %Y, %I:%M %p') }}</td>
+                    <td><strong class="{{ glucose_color_code(r.value) }}">{{ r.value }} mmol/L</strong></td>
+                    <td>
+                        <span
+                            class="glucose-badge {{ 'normal' if r.status() == 'normal' else ('critical' if 'critical' in r.status() else r.status()) }}">
+                            {{ r.status_label() }}
+                        </span>
+                    </td>
+                    <td>{{ format_meal_context(r.meal_context) }}</td>
+                    <td>{{ r.notes or '—' }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('glucose.delete', reading_id=r.id) }}"
+                            style="display: inline;" onsubmit="return confirm('Delete this reading?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-danger">🗑</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>No readings for this period.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if chart_values %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const ctx = document.getElementById('glucoseTrendChart').getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 350);
+        gradient.addColorStop(0, 'rgba(13, 148, 136, 0.25)');
+        gradient.addColorStop(1, 'rgba(13, 148, 136, 0.02)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ chart_labels | tojson }},
+        datasets: [{
+            label: 'Blood Glucose (mmol/L)',
+            data: {{ chart_values | tojson }},
+        borderColor: '#0d9488',
+        backgroundColor: gradient,
+        borderWidth: 2.5,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: {{ chart_values | tojson }}.map(v =>
+            v < 4 ? '#f59e0b' : v <= 7 ? '#10b981' : v <= 10 ? '#f59e0b' : '#ef4444'
+        ),
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 7
+            }]
+        },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            annotation: {
+                annotations: {
+                    normalLow: { type: 'line', yMin: 4, yMax: 4, borderColor: 'rgba(16,185,129,0.3)', borderDash: [5, 5] },
+                    normalHigh: { type: 'line', yMin: 7, yMax: 7, borderColor: 'rgba(245,158,11,0.3)', borderDash: [5, 5] },
+                    dangerHigh: { type: 'line', yMin: 10, yMax: 10, borderColor: 'rgba(239,68,68,0.3)', borderDash: [5, 5] }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: false, suggestedMin: 2, suggestedMax: 15,
+                grid: { color: 'rgba(0,0,0,0.05)' }
+            },
+            x: {
+                grid: { display: false },
+                ticks: { maxRotation: 45, font: { size: 10 } }
+            }
+        }
+    }
+    });
+});
+</script>
+{% endif %}
+{% endblock %}

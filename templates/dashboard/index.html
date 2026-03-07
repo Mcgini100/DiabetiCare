@@ -1,0 +1,325 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — DiabetiCare{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>{{ greeting }}, {{ current_user.name.split()[0] }} 👋</h1>
+    <p>Here's your health overview for today</p>
+</div>
+
+<!-- Quick Actions -->
+<div class="quick-actions stagger">
+    <a href="{{ url_for('glucose.log') }}" class="quick-action fade-in-up">
+        <span class="icon">🩸</span>
+        Log Glucose
+    </a>
+    <a href="{{ url_for('medication.list_medications') }}" class="quick-action fade-in-up">
+        <span class="icon">💊</span>
+        Medication
+    </a>
+    <a href="{{ url_for('diet.log_meal') }}" class="quick-action fade-in-up">
+        <span class="icon">🥗</span>
+        Log Meal
+    </a>
+    <a href="{{ url_for('activity.log_exercise') }}" class="quick-action fade-in-up">
+        <span class="icon">🏃</span>
+        Log Exercise
+    </a>
+    <a href="{{ url_for('appointments.list_appointments') }}" class="quick-action fade-in-up">
+        <span class="icon">📅</span>
+        Appointments
+    </a>
+    <a href="{{ url_for('education.index') }}" class="quick-action fade-in-up">
+        <span class="icon">📚</span>
+        Learn
+    </a>
+</div>
+
+<!-- Stat Cards -->
+<div class="dashboard-grid stagger">
+    <!-- Latest Glucose -->
+    <div class="card fade-in-up">
+        <div class="stat-card">
+            <div class="card-icon primary">🩸</div>
+            <div>
+                <div class="stat-label">Latest Blood Glucose</div>
+                {% if latest_glucose %}
+                <div class="stat-value {{ glucose_color_code(latest_glucose.value) }}">
+                    {{ latest_glucose.value }} <span
+                        style="font-size: var(--font-size-lg); font-weight: 500;">mmol/L</span>
+                </div>
+                <span
+                    class="glucose-badge {{ 'normal' if latest_glucose.status() == 'normal' else ('critical' if 'critical' in latest_glucose.status() else latest_glucose.status()) }}">
+                    {{ latest_glucose.status_label() }}
+                </span>
+                <div class="text-muted" style="font-size: var(--font-size-xs); margin-top: 4px;">
+                    {{ latest_glucose.reading_time.strftime('%d %b, %I:%M %p') }}
+                </div>
+                {% else %}
+                <div class="stat-value text-muted">—</div>
+                <div class="text-muted" style="font-size: var(--font-size-sm);">No readings yet</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Weekly Average -->
+    <div class="card fade-in-up">
+        <div class="stat-card">
+            <div class="card-icon success">📈</div>
+            <div>
+                <div class="stat-label">7-Day Average</div>
+                <div class="stat-value" style="color: var(--primary);">
+                    {{ week_avg if week_avg else '—' }}
+                    {% if week_avg %}<span style="font-size: var(--font-size-lg); font-weight: 500;">mmol/L</span>{%
+                    endif %}
+                </div>
+                <div class="text-muted" style="font-size: var(--font-size-sm);">
+                    Today avg: {{ today_avg if today_avg else 'No data' }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Medication Adherence -->
+    <div class="card fade-in-up">
+        <div class="stat-card">
+            <div class="card-icon warning">💊</div>
+            <div>
+                <div class="stat-label">Medication Adherence (7d)</div>
+                <div class="stat-value"
+                    style="color: {{ 'var(--success)' if adherence >= 80 else ('var(--warning)' if adherence >= 60 else 'var(--danger)') }};">
+                    {{ adherence }}%
+                </div>
+                <div class="progress-bar-container" style="margin-top: 8px;">
+                    <div class="progress-bar-fill" style="width: {{ adherence }}%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exercise This Week -->
+    <div class="card fade-in-up">
+        <div class="stat-card">
+            <div class="card-icon accent">🏃</div>
+            <div>
+                <div class="stat-label">Exercise This Week</div>
+                <div class="stat-value" style="color: var(--accent);">
+                    {{ weekly_exercise_mins }} <span
+                        style="font-size: var(--font-size-lg); font-weight: 500;">min</span>
+                </div>
+                <div class="progress-bar-container" style="margin-top: 8px;">
+                    <div class="progress-bar-fill"
+                        style="width: {{ [weekly_exercise_mins / 150 * 100, 100] | min }}%; background: linear-gradient(90deg, var(--accent), var(--accent-light));">
+                    </div>
+                </div>
+                <div class="text-muted" style="font-size: var(--font-size-xs); margin-top: 4px;">Goal: 150 min/week
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Glucose Trends Chart -->
+<div class="card mb-xl fade-in-up">
+    <div class="card-header">
+        <h3>🩸 Blood Glucose Trends (Last 7 Days)</h3>
+        <a href="{{ url_for('glucose.trends') }}" class="btn btn-sm btn-secondary">View All</a>
+    </div>
+    {% if chart_values %}
+    <div class="chart-container">
+        <canvas id="glucoseChart"></canvas>
+    </div>
+    {% else %}
+    <div class="empty-state" style="padding: var(--space-lg);">
+        <div class="icon">📊</div>
+        <h3>No data yet</h3>
+        <p>Start logging your blood glucose to see trends here.</p>
+        <a href="{{ url_for('glucose.log') }}" class="btn btn-primary">Log First Reading</a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Two-column: Medications & Appointments -->
+<div
+    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-xl);">
+    <!-- Today's Medications -->
+    <div class="card fade-in-up">
+        <div class="card-header">
+            <h3>💊 Today's Medications</h3>
+            <a href="{{ url_for('medication.list_medications') }}" class="btn btn-sm btn-secondary">Manage</a>
+        </div>
+        {% if active_meds %}
+        <ul class="reminder-list">
+            {% for med in active_meds %}
+            <li class="reminder-item">
+                <div class="reminder-icon"
+                    style="background: {{ '#ecfdf5' if med.id in taken_med_ids else '#fef2f2' }}; color: {{ 'var(--success)' if med.id in taken_med_ids else 'var(--danger)' }};">
+                    {{ '✓' if med.id in taken_med_ids else '○' }}
+                </div>
+                <div class="reminder-content">
+                    <div class="reminder-title">{{ med.name }} — {{ med.dosage }}</div>
+                    <div class="reminder-time">{{ med.time_of_day | capitalize if med.time_of_day else med.frequency }}
+                    </div>
+                </div>
+                {% if med.id not in taken_med_ids %}
+                <a href="{{ url_for('medication.take_medication', medication_id=med.id) }}"
+                    class="btn btn-sm btn-primary">Take</a>
+                {% else %}
+                <span class="badge badge-success">Taken ✓</span>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <div class="empty-state" style="padding: var(--space-md);">
+            <p>No active medications.</p>
+            <a href="{{ url_for('medication.add_medication') }}" class="btn btn-sm btn-primary mt-sm">Add Medication</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Upcoming Appointments -->
+    <div class="card fade-in-up">
+        <div class="card-header">
+            <h3>📅 Upcoming Appointments</h3>
+            <a href="{{ url_for('appointments.add_appointment') }}" class="btn btn-sm btn-secondary">+ New</a>
+        </div>
+        {% if upcoming_appointments %}
+        <ul class="reminder-list">
+            {% for appt in upcoming_appointments %}
+            <li class="reminder-item">
+                <div class="reminder-icon" style="background: #eff6ff; color: var(--info);">📋</div>
+                <div class="reminder-content">
+                    <div class="reminder-title">{{ appt.title }}</div>
+                    <div class="reminder-time">
+                        {{ appt.date_time.strftime('%d %b %Y, %I:%M %p') }}
+                        {% if appt.doctor_name %} — {{ appt.doctor_name }}{% endif %}
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <div class="empty-state" style="padding: var(--space-md);">
+            <p>No upcoming appointments.</p>
+            <a href="{{ url_for('appointments.add_appointment') }}" class="btn btn-sm btn-primary mt-sm">Schedule
+                One</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Active Goals & Badges -->
+{% if active_goals or recent_badges %}
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--space-lg);">
+    {% if active_goals %}
+    <div class="card fade-in-up">
+        <div class="card-header">
+            <h3>🎯 Active Goals</h3>
+        </div>
+        {% for goal in active_goals %}
+        <div style="margin-bottom: var(--space-md);">
+            <div class="d-flex justify-between align-center mb-sm">
+                <span class="font-semibold" style="font-size: var(--font-size-sm);">{{ goal.title }}</span>
+                <span class="text-muted" style="font-size: var(--font-size-xs);">
+                    {{ goal.current_value or 0 }}/{{ goal.target_value }} {{ goal.unit or '' }}
+                </span>
+            </div>
+            <div class="progress-bar-container">
+                {% set pct = ((goal.current_value or 0) / goal.target_value * 100) if goal.target_value else 0 %}
+                <div class="progress-bar-fill" style="width: {{ [pct, 100]|min }}%;"></div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if recent_badges %}
+    <div class="card fade-in-up">
+        <div class="card-header">
+            <h3>🏆 Recent Badges</h3>
+        </div>
+        <div style="display: flex; gap: var(--space-md); flex-wrap: wrap;">
+            {% for badge in recent_badges %}
+            <div style="text-align: center; padding: var(--space-sm);">
+                <div style="font-size: 2rem;">{{ badge.icon or '⭐' }}</div>
+                <div style="font-size: var(--font-size-xs); font-weight: 600;">{{ badge.name }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if chart_values %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const ctx = document.getElementById('glucoseChart').getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, 'rgba(13, 148, 136, 0.3)');
+        gradient.addColorStop(1, 'rgba(13, 148, 136, 0.02)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ chart_labels | tojson }},
+        datasets: [{
+            label: 'Blood Glucose (mmol/L)',
+            data: {{ chart_values | tojson }},
+        borderColor: '#0d9488',
+        backgroundColor: gradient,
+        borderWidth: 2.5,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: {{ chart_values | tojson }}.map(v =>
+            v < 4 ? '#f59e0b' : v <= 7 ? '#10b981' : v <= 10 ? '#f59e0b' : '#ef4444'
+        ),
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 5,
+        pointHoverRadius: 7
+            }]
+        },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                titleFont: { family: 'Inter', size: 13 },
+                bodyFont: { family: 'Inter', size: 12 },
+                padding: 12,
+                cornerRadius: 8,
+                callbacks: {
+                    label: function (ctx) {
+                        const v = ctx.raw;
+                        let status = v < 4 ? 'Low' : v <= 7 ? 'Normal' : v <= 10 ? 'High' : 'Very High';
+                        return `${v} mmol/L — ${status}`;
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: false,
+                suggestedMin: 2,
+                suggestedMax: 15,
+                grid: { color: 'rgba(0,0,0,0.05)' },
+                ticks: { font: { family: 'Inter', size: 11 } }
+            },
+            x: {
+                grid: { display: false },
+                ticks: { font: { family: 'Inter', size: 10 }, maxRotation: 45 }
+            }
+        }
+    }
+    });
+});
+</script>
+{% endif %}
+{% endblock %}

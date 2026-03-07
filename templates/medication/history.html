@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Medication History — DiabetiCare{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>💊 Medication History</h1>
+    <p>Your medication intake log</p>
+</div>
+<div class="card fade-in-up">
+    {% if logs %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date & Time</th>
+                    <th>Medication</th>
+                    <th>Status</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log.taken_at.strftime('%d %b %Y, %I:%M %p') }}</td>
+                    <td><strong>{{ log.medication.name }}</strong> — {{ log.medication.dosage }}</td>
+                    <td><span class="badge {{ 'badge-success' if log.taken else 'badge-danger' }}">{{ 'Taken ✓' if
+                            log.taken else 'Missed ✗' }}</span></td>
+                    <td>{{ log.notes or '—' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="icon">📋</div>
+        <h3>No medication history yet</h3>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

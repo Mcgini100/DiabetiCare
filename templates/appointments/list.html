@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Appointments — DiabetiCare{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>📅 Appointments & Tests</h1>
+    <p>Manage your medical appointments</p>
+</div>
+<div class="d-flex justify-between align-center mb-lg">
+    <a href="{{ url_for('appointments.add_appointment') }}" class="btn btn-primary">+ Schedule Appointment</a>
+</div>
+<div class="card mb-xl fade-in-up">
+    <h3 style="margin-bottom: var(--space-md);">Upcoming</h3>
+    {% if upcoming %}
+    <ul class="reminder-list">
+        {% for appt in upcoming %}
+        <li class="reminder-item">
+            <div class="reminder-icon" style="background: #eff6ff; color: var(--info);">📋</div>
+            <div class="reminder-content" style="flex: 1;">
+                <div class="reminder-title">{{ appt.title }}</div>
+                <div class="reminder-time">{{ appt.date_time.strftime('%d %b %Y, %I:%M %p') }}{% if appt.doctor_name %}
+                    · Dr. {{ appt.doctor_name }}{% endif %}{% if appt.location %} · {{ appt.location }}{% endif %}</div>
+            </div>
+            <div class="d-flex gap-sm">
+                <a href="{{ url_for('appointments.complete', appt_id=appt.id) }}"
+                    class="btn btn-sm btn-primary">Complete</a>
+                <form method="POST" action="{{ url_for('appointments.delete', appt_id=appt.id) }}"
+                    style="display:inline;" onsubmit="return confirm('Delete?');"><input type="hidden" name="csrf_token"
+                        value="{{ csrf_token() }}"><button class="btn btn-sm btn-danger">🗑</button></form>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <div class="empty-state" style="padding: var(--space-md);">
+        <p>No upcoming appointments.</p>
+    </div>
+    {% endif %}
+</div>
+{% if past %}
+<div class="card fade-in-up">
+    <h3 style="margin-bottom: var(--space-md); color: var(--text-muted);">Past Appointments</h3>
+    <ul class="reminder-list">
+        {% for appt in past %}
+        <li class="reminder-item" style="opacity: 0.6;">
+            <div class="reminder-content">
+                <div class="reminder-title">{{ appt.title }}</div>
+                <div class="reminder-time">{{ appt.date_time.strftime('%d %b %Y') }} · <span
+                        class="badge badge-success">Completed</span></div>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+{% endblock %}

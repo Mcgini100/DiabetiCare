@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Educational Resources — DiabetiCare{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>📚 Educational Resources</h1>
+    <p>Learn about diabetes management</p>
+</div>
+
+{% for category, modules in categories.items() %}
+<h2 style="margin-bottom: var(--space-md); margin-top: var(--space-xl);">
+    <span class="education-category cat-{{ category }}">{{ category|replace('_', ' ')|capitalize }}</span>
+</h2>
+<div class="education-grid stagger">
+    {% for mod in modules %}
+    <div class="card education-card fade-in-up">
+        <div style="font-size: 2.5rem; margin-bottom: var(--space-sm);">
+            {{ '📖' if category == 'basics' else ('🥗' if category == 'diet' else ('🏃' if category == 'exercise' else
+            ('🦶' if category == 'foot_care' else '⚠️'))) }}
+        </div>
+        <h3 style="margin-bottom: var(--space-sm);">{{ mod.title }}</h3>
+        <p class="text-muted" style="font-size: var(--font-size-sm); margin-bottom: var(--space-md);">{{ mod.summary or
+            '' }}</p>
+        <div class="d-flex gap-sm">
+            <a href="{{ url_for('education.module', module_id=mod.id) }}" class="btn btn-sm btn-primary">Read More</a>
+            {% if mod.quizzes.count() > 0 %}
+            <a href="{{ url_for('education.quiz', module_id=mod.id) }}" class="btn btn-sm btn-secondary">Take Quiz</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endfor %}
+{% endblock %}

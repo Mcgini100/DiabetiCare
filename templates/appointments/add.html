@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Schedule Appointment — DiabetiCare{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>📅 Schedule Appointment</h1>
+</div>
+<div class="card fade-in-up" style="max-width: 600px;">
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="form-group">{{ form.title.label }}{{ form.title(class="form-control", placeholder="e.g. Regular
+            Checkup", id="appt-title") }}{% for e in form.title.errors %}<span class="form-error">{{ e }}</span>{%
+            endfor %}</div>
+        <div class="form-row">
+            <div class="form-group">{{ form.doctor_name.label }}{{ form.doctor_name(class="form-control",
+                placeholder="Dr. name", id="appt-doctor") }}</div>
+            <div class="form-group">{{ form.appointment_type.label }}{{ form.appointment_type(class="form-control",
+                id="appt-type") }}</div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">{{ form.date_time.label }}{{ form.date_time(class="form-control", id="appt-date")
+                }}{% for e in form.date_time.errors %}<span class="form-error">{{ e }}</span>{% endfor %}</div>
+            <div class="form-group">{{ form.location.label }}{{ form.location(class="form-control",
+                placeholder="Hospital/Clinic", id="appt-location") }}</div>
+        </div>
+        <div class="form-group">{{ form.notes.label }}{{ form.notes(class="form-control", placeholder="Any notes...",
+            id="appt-notes", rows="2") }}</div>
+        <div class="d-flex gap-md">{{ form.submit(class="btn btn-primary btn-lg") }}<a
+                href="{{ url_for('appointments.list_appointments') }}" class="btn btn-secondary btn-lg">Cancel</a></div>
+    </form>
+</div>
+{% endblock %}

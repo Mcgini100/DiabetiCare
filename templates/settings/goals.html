@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Goals — DiabetiCare{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>🎯 Health Goals</h1>
+    <p>Set targets and track your progress</p>
+</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg);">
+    <div class="card fade-in-up">
+        <h3 style="margin-bottom: var(--space-lg);">Set a New Goal</h3>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="form-group">{{ form.goal_type.label }}{{ form.goal_type(class="form-control", id="goal-type") }}
+            </div>
+            <div class="form-group">{{ form.title.label }}{{ form.title(class="form-control", placeholder="e.g. Keep
+                fasting glucose under 7", id="goal-title") }}{% for e in form.title.errors %}<span class="form-error">{{
+                    e }}</span>{% endfor %}</div>
+            <div class="form-row">
+                <div class="form-group">{{ form.target_value.label }}{{ form.target_value(class="form-control",
+                    placeholder="e.g. 7.0", id="goal-target") }}</div>
+                <div class="form-group">{{ form.unit.label }}{{ form.unit(class="form-control", placeholder="e.g.
+                    mmol/L", id="goal-unit") }}</div>
+            </div>
+            <div class="form-group">{{ form.deadline.label }}{{ form.deadline(class="form-control", id="goal-deadline")
+                }}</div>
+            {{ form.submit(class="btn btn-primary btn-lg") }}
+        </form>
+    </div>
+    <div>
+        {% if active_goals %}
+        <div class="card fade-in-up mb-lg">
+            <h3 style="margin-bottom: var(--space-md);">Active Goals</h3>
+            {% for g in active_goals %}
+            <div
+                style="margin-bottom: var(--space-md); padding: var(--space-md); background: var(--bg); border-radius: var(--radius);">
+                <div class="d-flex justify-between align-center mb-sm">
+                    <span class="font-semibold">{{ g.title }}</span>
+                    <span class="badge badge-primary">{{ g.goal_type|capitalize }}</span>
+                </div>
+                {% if g.target_value %}
+                <div class="progress-bar-container mb-sm">
+                    {% set pct = ((g.current_value or 0) / g.target_value * 100) if g.target_value else 0 %}
+                    <div class="progress-bar-fill" style="width: {{ [pct, 100]|min }}%;"></div>
+                </div>
+                <div class="text-muted" style="font-size: var(--font-size-xs);">{{ g.current_value or 0 }}/{{
+                    g.target_value }} {{ g.unit or '' }}</div>
+                {% endif %}
+                <a href="{{ url_for('settings.achieve_goal', goal_id=g.id) }}" class="btn btn-sm btn-primary mt-sm">Mark
+                    Achieved ✓</a>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% if achieved_goals %}
+        <div class="card fade-in-up">
+            <h3 style="margin-bottom: var(--space-md); color: var(--success);">🏆 Achieved</h3>
+            {% for g in achieved_goals %}
+            <div class="d-flex align-center gap-sm mb-sm" style="opacity: 0.7;">
+                <span>✅</span><span>{{ g.title }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

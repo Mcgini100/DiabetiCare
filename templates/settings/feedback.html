@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Feedback — DiabetiCare{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>💬 Send Feedback</h1>
+</div>
+<div class="card fade-in-up" style="max-width: 600px;">
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="form-group">{{ form.subject.label }}{{ form.subject(class="form-control", placeholder="What's on
+            your mind?", id="fb-subject") }}{% for e in form.subject.errors %}<span class="form-error">{{ e }}</span>{%
+            endfor %}</div>
+        <div class="form-group">{{ form.feedback_type.label }}{{ form.feedback_type(class="form-control", id="fb-type")
+            }}</div>
+        <div class="form-group">{{ form.message.label }}{{ form.message(class="form-control", placeholder="Tell us
+            more...", id="fb-msg", rows="5") }}{% for e in form.message.errors %}<span class="form-error">{{ e
+                }}</span>{% endfor %}</div>
+        <div class="d-flex gap-md">{{ form.submit(class="btn btn-primary btn-lg") }}<a
+                href="{{ url_for('settings.index') }}" class="btn btn-secondary btn-lg">Cancel</a></div>
+    </form>
+</div>
+{% endblock %}

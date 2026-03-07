@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }} — DiabetiCare Community{% endblock %}
+{% block content %}
+<a href="{{ url_for('community.forums') }}" class="btn btn-sm btn-secondary mb-lg">← Back to Forums</a>
+<div class="card fade-in-up mb-lg">
+    <div class="d-flex gap-md align-center mb-md">
+        <div class="thread-avatar">{{ post.author.name[0]|upper }}</div>
+        <div>
+            <h2 style="margin-bottom: 2px;">{{ post.title }}</h2>
+            <div class="text-muted" style="font-size: var(--font-size-sm);">{{ post.author.name }} · {{
+                post.created_at.strftime('%d %b %Y, %I:%M %p') }}{% if post.category %} · <span
+                    class="badge badge-primary">{{ post.category|capitalize }}</span>{% endif %}</div>
+        </div>
+    </div>
+    <div style="line-height: 1.8; white-space: pre-wrap;">{{ post.body }}</div>
+    {% if post.user_id == current_user.id %}
+    <form method="POST" action="{{ url_for('community.delete_post', post_id=post.id) }}"
+        style="margin-top: var(--space-md);" onsubmit="return confirm('Delete this post?');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-sm btn-danger">Delete Post</button>
+    </form>
+    {% endif %}
+</div>
+
+<!-- Replies -->
+<h3 class="mb-md">{{ replies|length }} Replies</h3>
+{% for reply in replies %}
+<div class="card mb-md fade-in-up">
+    <div class="d-flex gap-md align-center mb-sm">
+        <div class="user-avatar" style="width: 32px; height: 32px; font-size: var(--font-size-xs);">{{
+            reply.author.name[0]|upper }}</div>
+        <div>
+            <span class="font-semibold">{{ reply.author.name }}</span>
+            <span class="text-muted" style="font-size: var(--font-size-xs);">· {{ reply.created_at.strftime('%d %b %Y,
+                %I:%M %p') }}</span>
+        </div>
+    </div>
+    <div style="white-space: pre-wrap;">{{ reply.body }}</div>
+</div>
+{% endfor %}
+
+<!-- Reply Form -->
+<div class="card fade-in-up">
+    <h3 style="margin-bottom: var(--space-md);">Reply</h3>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="form-group">{{ form.body(class="form-control", placeholder="Write your reply...", id="reply-body",
+            rows="4") }}{% for e in form.body.errors %}<span class="form-error">{{ e }}</span>{% endfor %}</div>
+        {{ form.submit(class="btn btn-primary") }}
+    </form>
+</div>
+{% endblock %}
