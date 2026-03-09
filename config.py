@@ -5,6 +5,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'diabeticare-secret-key-change-in-production'
+    GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY') or 'AIzaSyDF8RgoDTHoqq4Wo196HIv7uTzHISLM4KE'
 
     # Priority 1: External Postgres Database (e.g. Supabase, Neon)
     db_url = os.environ.get('DATABASE_URL')

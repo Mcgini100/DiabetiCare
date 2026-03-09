@@ -7,7 +7,20 @@
 </div>
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg);">
     <div class="card fade-in-up">
-        <h3 style="margin-bottom: var(--space-lg);">Log a Meal</h3>
+        <div class="d-flex justify-between align-center mb-lg">
+            <h3 style="margin: 0;">Log a Meal</h3>
+            <div>
+                <input type="file" id="camera-input" accept="image/*" capture="environment" style="display: none;">
+                <button type="button" class="btn btn-sm btn-primary" id="ai-scan-btn">📸 Snap Meal with AI</button>
+            </div>
+        </div>
+
+        <div id="ai-loading" class="hidden mb-md"
+            style="padding: var(--space-md); background: var(--bg); border-radius: var(--radius); text-align: center;">
+            <div style="font-size: 2rem; margin-bottom: 8px;" class="pulse">🤖</div>
+            <p>Analyzing meal to calculate carbs and calories...</p>
+        </div>
+
         <form method="POST">
             {{ form.hidden_tag() }}
             <div class="form-row">
@@ -59,4 +72,67 @@
         {% endif %}
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const cameraInput = document.getElementById('camera-input');
+    const aiScanBtn = document.getElementById('ai-scan-btn');
+    const aiLoading = document.getElementById('ai-loading');
+
+    aiScanBtn.addEventListener('click', () => {
+        cameraInput.click();
+    });
+
+    cameraInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Show loading state
+        aiLoading.classList.remove('hidden');
+        aiScanBtn.disabled = true;
+
+        const reader = new FileReader();
+        reader.onload = (readerEvent) => {
+            const base64Data = readerEvent.target.result;
+
+            fetch('/diet/api/analyze-food', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value
+                },
+                body: JSON.stringify({ image: base64Data })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    aiLoading.classList.add('hidden');
+                    aiScanBtn.disabled = false;
+
+                    if (data.error) {
+                        alert('AI Analysis failed: ' + data.error);
+                        return;
+                    }
+
+                    // Auto-fill form
+                    if (data.food_items) document.getElementById('diet-items').value = data.food_items;
+                    if (data.carbs_grams) document.getElementById('diet-carbs').value = data.carbs_grams;
+                    if (data.calories) document.getElementById('diet-cal').value = data.calories;
+                    if (data.portion_size) document.getElementById('diet-portion').value = data.portion_size;
+
+                    // Add note about AI fill
+                    const notesField = document.getElementById('diet-notes');
+                    const aiNote = '🤖 Auto-filled by AI.';
+                    notesField.value = notesField.value ? notesField.value + ' ' + aiNote : aiNote;
+                })
+                .catch(err => {
+                    aiLoading.classList.add('hidden');
+                    aiScanBtn.disabled = false;
+                    alert('Error analyzing image. Please try again.');
+                    console.error(err);
+                });
+        };
+        reader.readAsDataURL(file);
+    });
+</script>
 {% endblock %}

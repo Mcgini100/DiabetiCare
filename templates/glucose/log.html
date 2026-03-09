@@ -10,7 +10,20 @@
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg);">
     <!-- Log Form -->
     <div class="card fade-in-up">
-        <h3 style="margin-bottom: var(--space-lg);">New Reading</h3>
+        <div class="d-flex justify-between align-center mb-lg">
+            <h3 style="margin: 0;">New Reading</h3>
+            <div>
+                <input type="file" id="camera-input" accept="image/*" capture="environment" style="display: none;">
+                <button type="button" class="btn btn-sm btn-primary" id="ai-scan-btn">📸 Scan Meter</button>
+            </div>
+        </div>
+
+        <div id="ai-loading" class="hidden mb-md"
+            style="padding: var(--space-md); background: var(--bg); border-radius: var(--radius); text-align: center;">
+            <div style="font-size: 2rem; margin-bottom: 8px;" class="pulse">🤖</div>
+            <p>Reading glucometer screen...</p>
+        </div>
+
         <form method="POST">
             {{ form.hidden_tag() }}
 
@@ -119,4 +132,66 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const cameraInput = document.getElementById('camera-input');
+    const aiScanBtn = document.getElementById('ai-scan-btn');
+    const aiLoading = document.getElementById('ai-loading');
+
+    aiScanBtn.addEventListener('click', () => {
+        cameraInput.click();
+    });
+
+    cameraInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Show loading state
+        aiLoading.classList.remove('hidden');
+        aiScanBtn.disabled = true;
+
+        const reader = new FileReader();
+        reader.onload = (readerEvent) => {
+            const base64Data = readerEvent.target.result;
+
+            fetch('/glucose/api/read-glucometer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value
+                },
+                body: JSON.stringify({ image: base64Data })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    aiLoading.classList.add('hidden');
+                    aiScanBtn.disabled = false;
+
+                    if (data.error) {
+                        alert('AI Scan failed: ' + data.error);
+                        return;
+                    }
+
+                    // Auto-fill form
+                    if (data.glucose_value) {
+                        document.getElementById('glucose-value').value = data.glucose_value;
+                    }
+
+                    // Add note about AI fill
+                    const notesField = document.getElementById('glucose-notes');
+                    const aiNote = '🤖 Scanned via AI.';
+                    notesField.value = notesField.value ? notesField.value + ' ' + aiNote : aiNote;
+                })
+                .catch(err => {
+                    aiLoading.classList.add('hidden');
+                    aiScanBtn.disabled = false;
+                    alert('Error reading image. Please try again or enter manually.');
+                    console.error(err);
+                });
+        };
+        reader.readAsDataURL(file);
+    });
+</script>
 {% endblock %}
