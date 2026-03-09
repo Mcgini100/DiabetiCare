@@ -1,12 +1,19 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, Response
+from flask import Blueprint, render_template, redirect, url_for, flash, request, Response, jsonify
 from flask_login import login_required, current_user
 from datetime import datetime, timedelta, timezone
 from extensions import db
 from models import GlucoseReading
 from forms import GlucoseForm
 from utils import glucose_color_code, format_meal_context, calculate_average, export_glucose_csv
+from ai_service import read_glucometer_image, is_ai_configured
 
 glucose_bp = Blueprint('glucose', __name__)
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
+
+
+def _allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @glucose_bp.route('/log', methods=['GET', 'POST'])
@@ -43,7 +50,34 @@ def log():
         .order_by(GlucoseReading.reading_time.desc()).limit(5).all()
 
     return render_template('glucose/log.html', form=form, recent=recent,
-                         glucose_color_code=glucose_color_code, format_meal_context=format_meal_context)
+                         glucose_color_code=glucose_color_code, format_meal_context=format_meal_context,
+                         ai_enabled=is_ai_configured())
+
+
+@glucose_bp.route('/scan', methods=['POST'])
+@login_required
+def scan_glucometer():
+    """AI-powered glucometer reading from image."""
+    if not is_ai_configured():
+        return jsonify({'error': 'AI service not configured.'}), 503
+
+    if 'meter_image' not in request.files:
+        return jsonify({'error': 'No image uploaded.'}), 400
+
+    file = request.files['meter_image']
+    if not file or not _allowed_file(file.filename):
+        return jsonify({'error': 'Invalid file. Use JPG, PNG, or WebP.'}), 400
+
+    image_bytes = file.read()
+    if len(image_bytes) > 10 * 1024 * 1024:
+        return jsonify({'error': 'Image too large. Max 10MB.'}), 400
+
+    ext = file.filename.rsplit('.', 1)[1].lower()
+    mime_map = {'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'png': 'image/png', 'webp': 'image/webp'}
+    mime_type = mime_map.get(ext, 'image/jpeg')
+
+    result = read_glucometer_image(image_bytes, mime_type)
+    return jsonify(result)
 
 
 @glucose_bp.route('/trends')

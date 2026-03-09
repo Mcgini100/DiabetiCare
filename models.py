@@ -148,9 +148,14 @@ class Meal(db.Model):
     meal_type = db.Column(db.String(20), nullable=False)  # breakfast, lunch, dinner, snack
     food_items = db.Column(db.Text, nullable=False)
     carbs_grams = db.Column(db.Float)
+    protein_grams = db.Column(db.Float)
+    fat_grams = db.Column(db.Float)
+    fiber_grams = db.Column(db.Float)
     portion_size = db.Column(db.String(30))  # small, medium, large
     calories = db.Column(db.Integer)
     notes = db.Column(db.Text)
+    image_path = db.Column(db.String(300))  # path to uploaded meal photo
+    ai_analyzed = db.Column(db.Boolean, default=False)
     logged_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
 

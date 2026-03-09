@@ -1,62 +1,266 @@
 {% extends "base.html" %}
-{% block title %}Diet & Nutrition — DiabetiCare{% endblock %}
+{% block title %}Log Meal — DiabetiCare{% endblock %}
 {% block content %}
 <div class="page-header">
-    <h1>🥗 Diet & Nutrition</h1>
-    <p>Log meals and track your nutrition</p>
+    <h1>🥗 Log Meal</h1>
+    <p>Record what you eat — manually or with AI analysis</p>
 </div>
+
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg);">
-    <div class="card fade-in-up">
-        <h3 style="margin-bottom: var(--space-lg);">Log a Meal</h3>
-        <form method="POST">
-            {{ form.hidden_tag() }}
-            <div class="form-row">
-                <div class="form-group">{{ form.meal_type.label }}{{ form.meal_type(class="form-control",
-                    id="diet-type") }}</div>
-                <div class="form-group">{{ form.portion_size.label }}{{ form.portion_size(class="form-control",
-                    id="diet-portion") }}</div>
+    <div>
+        {% if ai_enabled %}
+        <!-- AI Food Scanner -->
+        <div class="card fade-in-up mb-lg"
+            style="border: 2px solid var(--primary); position: relative; overflow: hidden;">
+            <div style="position: absolute; top: 12px; right: 12px;"><span class="badge badge-primary">🤖 AI</span>
             </div>
-            <div class="form-group">{{ form.food_items.label }}{{ form.food_items(class="form-control",
-                placeholder="e.g. Sadza, chicken, spinach (muriwo)", id="diet-items", rows="3") }}{% for e in
-                form.food_items.errors %}<span class="form-error">{{ e }}</span>{% endfor %}</div>
-            <div class="form-row">
-                <div class="form-group">{{ form.carbs_grams.label }}{{ form.carbs_grams(class="form-control",
-                    placeholder="e.g. 45", id="diet-carbs") }}</div>
-                <div class="form-group">{{ form.calories.label }}{{ form.calories(class="form-control",
-                    placeholder="e.g. 350", id="diet-cal") }}</div>
+            <h3 style="margin-bottom: var(--space-md);">📸 Scan Your Meal</h3>
+            <p class="text-muted mb-md" style="font-size: var(--font-size-sm);">Take a photo or upload an image — AI
+                will identify the food and calculate nutrition automatically.</p>
+
+            <div id="scan-area">
+                <div id="scan-dropzone"
+                    style="border: 2px dashed var(--border); border-radius: var(--radius-lg); padding: var(--space-2xl); text-align: center; cursor: pointer; transition: var(--transition);">
+                    <div style="font-size: 3rem; margin-bottom: var(--space-sm);">📷</div>
+                    <p class="font-semibold">Tap to take photo or upload</p>
+                    <p class="text-muted" style="font-size: var(--font-size-xs);">JPG, PNG, WebP — Max 10MB</p>
+                    <input type="file" id="food-image-input" accept="image/jpeg,image/png,image/webp"
+                        capture="environment" style="display: none;">
+                </div>
+
+                <div id="scan-preview" style="display: none; text-align: center; margin-top: var(--space-md);">
+                    <img id="scan-preview-img"
+                        style="max-width: 100%; max-height: 250px; border-radius: var(--radius); object-fit: cover;">
+                    <div class="d-flex gap-sm mt-md" style="justify-content: center;">
+                        <button id="scan-analyze-btn" class="btn btn-primary">🔍 Analyze Food</button>
+                        <button id="scan-retake-btn" class="btn btn-secondary">🔄 Retake</button>
+                    </div>
+                </div>
+
+                <div id="scan-loading" style="display: none; text-align: center; padding: var(--space-xl);">
+                    <div class="loader"></div>
+                    <p class="mt-md font-semibold">Analyzing your meal...</p>
+                    <p class="text-muted" style="font-size: var(--font-size-sm);">AI is identifying food items and
+                        calculating nutrition</p>
+                </div>
             </div>
-            <div class="form-group">{{ form.notes.label }}{{ form.notes(class="form-control", placeholder="Optional
-                notes", id="diet-notes", rows="2") }}</div>
-            {{ form.submit(class="btn btn-primary btn-lg") }}
-        </form>
+
+            <!-- AI Results -->
+            <div id="scan-results" style="display: none; margin-top: var(--space-lg);">
+                <div
+                    style="padding: var(--space-md); background: var(--primary-50); border-radius: var(--radius); margin-bottom: var(--space-md);">
+                    <h4 style="color: var(--primary); margin-bottom: var(--space-sm);">🤖 AI Analysis Results</h4>
+                    <p id="result-foods" class="font-semibold"></p>
+                    <p id="result-confidence" class="text-muted" style="font-size: var(--font-size-xs);"></p>
+                </div>
+                <div class="dashboard-grid"
+                    style="grid-template-columns: repeat(4, 1fr); gap: var(--space-sm); margin-bottom: var(--space-md);">
+                    <div class="card" style="text-align: center; padding: var(--space-md);">
+                        <div style="font-size: 1.5rem;">🔥</div>
+                        <div class="stat-value" style="font-size: var(--font-size-xl); color: var(--accent);"
+                            id="result-calories">0</div>
+                        <div class="stat-label">Calories</div>
+                    </div>
+                    <div class="card" style="text-align: center; padding: var(--space-md);">
+                        <div style="font-size: 1.5rem;">🍚</div>
+                        <div class="stat-value" style="font-size: var(--font-size-xl); color: var(--warning);"
+                            id="result-carbs">0g</div>
+                        <div class="stat-label">Carbs</div>
+                    </div>
+                    <div class="card" style="text-align: center; padding: var(--space-md);">
+                        <div style="font-size: 1.5rem;">🥩</div>
+                        <div class="stat-value" style="font-size: var(--font-size-xl); color: var(--danger);"
+                            id="result-protein">0g</div>
+                        <div class="stat-label">Protein</div>
+                    </div>
+                    <div class="card" style="text-align: center; padding: var(--space-md);">
+                        <div style="font-size: 1.5rem;">🧈</div>
+                        <div class="stat-value" style="font-size: var(--font-size-xl); color: var(--info);"
+                            id="result-fat">0g</div>
+                        <div class="stat-label">Fat</div>
+                    </div>
+                </div>
+                <p id="result-notes" class="text-muted mb-md"
+                    style="font-size: var(--font-size-sm); font-style: italic;"></p>
+
+                <form method="POST" action="{{ url_for('diet.log_from_scan') }}" id="save-scan-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="food_items" id="save-foods">
+                    <input type="hidden" name="meal_type" id="save-meal-type">
+                    <input type="hidden" name="calories" id="save-calories">
+                    <input type="hidden" name="carbs_grams" id="save-carbs">
+                    <input type="hidden" name="protein_grams" id="save-protein">
+                    <input type="hidden" name="fat_grams" id="save-fat">
+                    <input type="hidden" name="fiber_grams" id="save-fiber">
+                    <input type="hidden" name="portion_size" id="save-portion">
+                    <input type="hidden" name="health_notes" id="save-notes">
+                    <div class="d-flex gap-sm">
+                        <button type="submit" class="btn btn-primary btn-lg">💾 Save This Meal</button>
+                        <button type="button" id="scan-discard-btn" class="btn btn-secondary">Discard</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Manual Entry -->
+        <div class="card fade-in-up">
+            <h3 style="margin-bottom: var(--space-lg);">✏️ Manual Entry</h3>
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                <div class="form-row">
+                    <div class="form-group">{{ form.meal_type.label }}{{ form.meal_type(class="form-control",
+                        id="meal-type") }}</div>
+                    <div class="form-group">{{ form.portion_size.label }}{{ form.portion_size(class="form-control",
+                        id="portion-size") }}</div>
+                </div>
+                <div class="form-group">{{ form.food_items.label }}{{ form.food_items(class="form-control",
+                    placeholder="e.g. Sadza, chicken, spinach", id="food-items", rows="2") }}</div>
+                <div class="form-row">
+                    <div class="form-group">{{ form.carbs_grams.label }}{{ form.carbs_grams(class="form-control",
+                        placeholder="Estimated carbs (g)", id="carbs") }}</div>
+                    <div class="form-group">{{ form.calories.label }}{{ form.calories(class="form-control",
+                        placeholder="Estimated calories", id="calories") }}</div>
+                </div>
+                <div class="form-group">{{ form.notes.label }}{{ form.notes(class="form-control", id="meal-notes",
+                    rows="2") }}</div>
+                {{ form.submit(class="btn btn-primary btn-lg") }}
+            </form>
+        </div>
     </div>
+
+    <!-- Recent Meals -->
     <div class="card fade-in-up">
-        <h3 style="margin-bottom: var(--space-lg);">Recent Meals</h3>
+        <h3 style="margin-bottom: var(--space-md);">Recent Meals</h3>
         {% if recent %}
         <ul class="reminder-list">
-            {% for m in recent %}
+            {% for meal in recent %}
             <li class="reminder-item">
-                <div class="reminder-icon" style="background: #ecfdf5; color: var(--success);">{{ '🌅' if m.meal_type ==
-                    'breakfast' else ('☀️' if m.meal_type == 'lunch' else ('🌙' if m.meal_type == 'dinner' else '🍎'))
-                    }}</div>
+                <div class="reminder-icon" style="background: #ecfdf5; color: var(--success);">
+                    {% if meal.meal_type == 'breakfast' %}🌅{% elif meal.meal_type == 'lunch' %}☀️{% elif meal.meal_type
+                    == 'dinner' %}🌙{% else %}🍎{% endif %}
+                </div>
                 <div class="reminder-content">
-                    <div class="reminder-title">{{ m.meal_type|capitalize }} {% if m.carbs_grams %}<span
-                            class="badge badge-info">{{ m.carbs_grams }}g carbs</span>{% endif %}</div>
-                    <div class="reminder-time">{{ m.food_items[:60] }}{{ '...' if m.food_items|length > 60 }}</div>
-                    <div class="text-muted" style="font-size: var(--font-size-xs);">{{ m.logged_at.strftime('%d %b,
-                        %I:%M %p') }}</div>
+                    <div class="reminder-title">{{ meal.food_items[:50] }}{% if meal.ai_analyzed %} <span
+                            class="badge badge-primary" style="font-size: 10px;">AI</span>{% endif %}</div>
+                    <div class="reminder-time">
+                        {{ meal.meal_type|capitalize }} · {{ meal.logged_at.strftime('%d %b, %I:%M %p') }}
+                        {% if meal.calories %} · {{ meal.calories }} cal{% endif %}
+                        {% if meal.carbs_grams %} · {{ meal.carbs_grams }}g carbs{% endif %}
+                    </div>
                 </div>
             </li>
             {% endfor %}
         </ul>
-        <a href="{{ url_for('diet.history') }}" class="btn btn-sm btn-secondary mt-md">View All History</a>
+        <a href="{{ url_for('diet.history') }}" class="btn btn-sm btn-secondary mt-md">View All</a>
         {% else %}
-        <div class="empty-state">
-            <div class="icon">🥗</div>
-            <h3>No meals logged</h3>
-            <p>Start tracking your nutrition.</p>
+        <div class="empty-state" style="padding: var(--space-md);">
+            <p>No meals logged yet.</p>
         </div>
         {% endif %}
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+{% if ai_enabled %}
+<script>
+    const dropzone = document.getElementById('scan-dropzone');
+    const fileInput = document.getElementById('food-image-input');
+    const preview = document.getElementById('scan-preview');
+    const previewImg = document.getElementById('scan-preview-img');
+    const analyzeBtn = document.getElementById('scan-analyze-btn');
+    const retakeBtn = document.getElementById('scan-retake-btn');
+    const loading = document.getElementById('scan-loading');
+    const results = document.getElementById('scan-results');
+    const discardBtn = document.getElementById('scan-discard-btn');
+
+    let selectedFile = null;
+
+    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.style.borderColor = 'var(--primary)'; });
+    dropzone.addEventListener('dragleave', () => { dropzone.style.borderColor = 'var(--border)'; });
+    dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.style.borderColor = 'var(--border)';
+        if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+    });
+
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length) handleFile(fileInput.files[0]);
+    });
+
+    function handleFile(file) {
+        selectedFile = file;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewImg.src = e.target.result;
+            dropzone.style.display = 'none';
+            preview.style.display = 'block';
+            results.style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    retakeBtn.addEventListener('click', () => {
+        selectedFile = null;
+        preview.style.display = 'none';
+        dropzone.style.display = 'block';
+        results.style.display = 'none';
+        fileInput.value = '';
+    });
+
+    discardBtn.addEventListener('click', () => {
+        retakeBtn.click();
+    });
+
+    analyzeBtn.addEventListener('click', async () => {
+        if (!selectedFile) return;
+        preview.style.display = 'none';
+        loading.style.display = 'block';
+        results.style.display = 'none';
+
+        const formData = new FormData();
+        formData.append('food_image', selectedFile);
+
+        try {
+            const resp = await fetch('{{ url_for("diet.scan_food") }}', { method: 'POST', body: formData });
+            const data = await resp.json();
+            loading.style.display = 'none';
+
+            if (data.error) {
+                alert('Error: ' + data.error);
+                preview.style.display = 'block';
+                return;
+            }
+
+            // Display results
+            document.getElementById('result-foods').textContent = data.food_items || 'Unknown';
+            document.getElementById('result-confidence').textContent = 'Confidence: ' + (data.confidence || 'medium');
+            document.getElementById('result-calories').textContent = data.calories || 0;
+            document.getElementById('result-carbs').textContent = (data.carbs_grams || 0) + 'g';
+            document.getElementById('result-protein').textContent = (data.protein_grams || 0) + 'g';
+            document.getElementById('result-fat').textContent = (data.fat_grams || 0) + 'g';
+            document.getElementById('result-notes').textContent = data.health_notes || '';
+
+            // Fill hidden form
+            document.getElementById('save-foods').value = data.food_items || '';
+            document.getElementById('save-meal-type').value = data.meal_type || 'snack';
+            document.getElementById('save-calories').value = data.calories || 0;
+            document.getElementById('save-carbs').value = data.carbs_grams || 0;
+            document.getElementById('save-protein').value = data.protein_grams || 0;
+            document.getElementById('save-fat').value = data.fat_grams || 0;
+            document.getElementById('save-fiber').value = data.fiber_grams || 0;
+            document.getElementById('save-portion').value = data.portion_size || 'medium';
+            document.getElementById('save-notes').value = data.health_notes || '';
+
+            results.style.display = 'block';
+        } catch (err) {
+            loading.style.display = 'none';
+            preview.style.display = 'block';
+            alert('Scan failed. Please try again.');
+        }
+    });
+</script>
+{% endif %}
 {% endblock %}

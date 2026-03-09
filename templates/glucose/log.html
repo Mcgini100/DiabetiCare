@@ -1,122 +1,246 @@
 {% extends "base.html" %}
-{% block title %}Log Blood Glucose — DiabetiCare{% endblock %}
-
+{% block title %}Log Glucose — DiabetiCare{% endblock %}
 {% block content %}
 <div class="page-header">
     <h1>🩸 Log Blood Glucose</h1>
-    <p>Record your blood glucose reading</p>
+    <p>Enter your reading manually or scan your glucometer</p>
 </div>
 
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg);">
-    <!-- Log Form -->
-    <div class="card fade-in-up">
-        <h3 style="margin-bottom: var(--space-lg);">New Reading</h3>
-        <form method="POST">
-            {{ form.hidden_tag() }}
-
-            <div class="form-group">
-                {{ form.value.label }}
-                {{ form.value(class="form-control", placeholder="e.g. 7.2", id="glucose-value", step="0.1") }}
-                {% for error in form.value.errors %}
-                <span class="form-error">{{ error }}</span>
-                {% endfor %}
+    <div>
+        {% if ai_enabled %}
+        <!-- AI Glucometer Scanner -->
+        <div class="card fade-in-up mb-lg"
+            style="border: 2px solid var(--primary); position: relative; overflow: hidden;">
+            <div style="position: absolute; top: 12px; right: 12px;"><span class="badge badge-primary">🤖 AI</span>
             </div>
+            <h3 style="margin-bottom: var(--space-md);">📸 Scan Glucometer</h3>
+            <p class="text-muted mb-md" style="font-size: var(--font-size-sm);">Take a photo of your glucometer display
+                to automatically read the value.</p>
 
-            <div class="form-row">
-                <div class="form-group">
-                    {{ form.reading_time.label }}
-                    {{ form.reading_time(class="form-control", id="glucose-time") }}
+            <div id="meter-scan-area">
+                <div id="meter-dropzone"
+                    style="border: 2px dashed var(--border); border-radius: var(--radius-lg); padding: var(--space-2xl); text-align: center; cursor: pointer; transition: var(--transition);">
+                    <div style="font-size: 3rem; margin-bottom: var(--space-sm);">🔬</div>
+                    <p class="font-semibold">Tap to take photo of meter</p>
+                    <p class="text-muted" style="font-size: var(--font-size-xs);">Show the screen clearly · JPG, PNG,
+                        WebP</p>
+                    <input type="file" id="meter-image-input" accept="image/jpeg,image/png,image/webp"
+                        capture="environment" style="display: none;">
                 </div>
-                <div class="form-group">
-                    {{ form.meal_context.label }}
-                    {{ form.meal_context(class="form-control", id="glucose-context") }}
+
+                <div id="meter-preview" style="display: none; text-align: center; margin-top: var(--space-md);">
+                    <img id="meter-preview-img"
+                        style="max-width: 100%; max-height: 200px; border-radius: var(--radius); object-fit: cover;">
+                    <div class="d-flex gap-sm mt-md" style="justify-content: center;">
+                        <button id="meter-read-btn" class="btn btn-primary">🔍 Read Value</button>
+                        <button id="meter-retake-btn" class="btn btn-secondary">🔄 Retake</button>
+                    </div>
+                </div>
+
+                <div id="meter-loading" style="display: none; text-align: center; padding: var(--space-xl);">
+                    <div class="loader"></div>
+                    <p class="mt-md font-semibold">Reading glucometer...</p>
+                    <p class="text-muted" style="font-size: var(--font-size-sm);">AI is detecting the display value</p>
+                </div>
+
+                <!-- OCR Result -->
+                <div id="meter-result" style="display: none; margin-top: var(--space-lg);">
+                    <div
+                        style="text-align: center; padding: var(--space-lg); background: var(--primary-50); border-radius: var(--radius);">
+                        <div class="text-muted" style="font-size: var(--font-size-sm);">Detected Reading</div>
+                        <div id="meter-value-display"
+                            style="font-size: var(--font-size-4xl); font-weight: 800; color: var(--primary);"></div>
+                        <div id="meter-unit-display" class="text-muted">mmol/L</div>
+                        <div id="meter-device-display" class="text-muted mt-sm" style="font-size: var(--font-size-xs);">
+                        </div>
+                    </div>
+                    <div class="d-flex gap-sm mt-md" style="justify-content: center;">
+                        <button id="meter-use-btn" class="btn btn-primary">✅ Use This Value</button>
+                        <button id="meter-discard-btn" class="btn btn-secondary">Try Again</button>
+                    </div>
                 </div>
             </div>
+        </div>
+        {% endif %}
 
-            <div class="form-group">
-                {{ form.notes.label }}
-                {{ form.notes(class="form-control", placeholder="Optional notes...", id="glucose-notes", rows="3") }}
-            </div>
-
-            <div style="display: flex; gap: var(--space-md);">
+        <!-- Manual Entry -->
+        <div class="card fade-in-up">
+            <h3 style="margin-bottom: var(--space-lg);">✏️ {{ 'Manual Entry' if ai_enabled else 'Record Reading' }}</h3>
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    {{ form.value.label }}
+                    {{ form.value(class="form-control", placeholder="e.g. 6.5", id="glucose-value", step="0.1") }}
+                    {% for e in form.value.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+                </div>
+                <div class="form-row">
+                    <div class="form-group">{{ form.reading_time.label }}{{ form.reading_time(class="form-control",
+                        id="reading-time") }}</div>
+                    <div class="form-group">{{ form.meal_context.label }}{{ form.meal_context(class="form-control",
+                        id="meal-context") }}</div>
+                </div>
+                <div class="form-group">{{ form.notes.label }}{{ form.notes(class="form-control", placeholder="Any
+                    relevant notes...", id="glucose-notes", rows="2") }}</div>
                 {{ form.submit(class="btn btn-primary btn-lg") }}
-                <a href="{{ url_for('glucose.trends') }}" class="btn btn-secondary btn-lg">View Trends</a>
+            </form>
+
+            <!-- Glucose Range Guide -->
+            <div
+                style="margin-top: var(--space-lg); padding: var(--space-md); background: var(--bg); border-radius: var(--radius);">
+                <h4 style="margin-bottom: var(--space-sm); font-size: var(--font-size-sm);">📊 Quick Reference</h4>
+                <div
+                    style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-xs); font-size: var(--font-size-xs);">
+                    <span style="color: var(--glucose-critical);">🔴 Critical Low: &lt;3.0</span>
+                    <span style="color: var(--glucose-low);">🟡 Low: 3.0–3.9</span>
+                    <span style="color: var(--glucose-normal);">🟢 Normal: 4.0–7.0</span>
+                    <span style="color: var(--glucose-high);">🟡 High: 7.1–10.0</span>
+                    <span style="color: var(--glucose-critical);">🔴 Very High: &gt;10.0</span>
+                </div>
             </div>
-        </form>
+        </div>
     </div>
 
     <!-- Recent Readings -->
     <div class="card fade-in-up">
-        <h3 style="margin-bottom: var(--space-lg);">Recent Readings</h3>
+        <h3 style="margin-bottom: var(--space-md);">Recent Readings</h3>
         {% if recent %}
         <ul class="reminder-list">
             {% for r in recent %}
             <li class="reminder-item">
                 <div class="reminder-icon"
-                    style="background: {{ '#ecfdf5' if r.status() == 'normal' else '#fef2f2' }};">
-                    <span class="{{ glucose_color_code(r.value) }}" style="font-weight: 800;">{{ r.value }}</span>
+                    style="background: {{ glucose_color_code(r.value) }}20; color: {{ glucose_color_code(r.value) }};">
+                    {{ '%.1f'|format(r.value) }}
                 </div>
                 <div class="reminder-content">
-                    <div class="reminder-title">
-                        {{ r.value }} mmol/L
-                        <span
-                            class="glucose-badge {{ 'normal' if r.status() == 'normal' else ('critical' if 'critical' in r.status() else r.status()) }}"
-                            style="margin-left: 4px;">
-                            {{ r.status_label() }}
-                        </span>
+                    <div class="reminder-title" style="color: {{ glucose_color_code(r.value) }};">{{ r.status_label() }}
                     </div>
-                    <div class="reminder-time">
-                        {{ r.reading_time.strftime('%d %b %Y, %I:%M %p') }}
-                        {% if r.meal_context %} · {{ format_meal_context(r.meal_context) }}{% endif %}
-                    </div>
+                    <div class="reminder-time">{{ r.reading_time.strftime('%d %b, %I:%M %p') }}{% if r.meal_context %} ·
+                        {{ format_meal_context(r.meal_context) }}{% endif %}</div>
                 </div>
             </li>
             {% endfor %}
         </ul>
+        <a href="{{ url_for('glucose.trends') }}" class="btn btn-sm btn-secondary mt-md">View Trends</a>
         {% else %}
-        <div class="empty-state">
-            <div class="icon">📊</div>
-            <h3>No readings yet</h3>
-            <p>Log your first reading using the form.</p>
+        <div class="empty-state" style="padding: var(--space-md);">
+            <p>No readings yet.</p>
         </div>
         {% endif %}
     </div>
 </div>
+{% endblock %}
 
-<!-- Glucose Range Guide -->
-<div class="card mt-xl fade-in-up">
-    <h3 style="margin-bottom: var(--space-md);">📋 Blood Glucose Guide</h3>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md);">
-        <div
-            style="padding: var(--space-md); background: #fef2f2; border-radius: var(--radius); border-left: 4px solid var(--danger);">
-            <strong style="color: var(--danger);">Critical Low</strong><br>
-            <span class="text-muted">Below 3.0 mmol/L</span><br>
-            <small>Seek help immediately</small>
-        </div>
-        <div
-            style="padding: var(--space-md); background: #fffbeb; border-radius: var(--radius); border-left: 4px solid var(--warning);">
-            <strong style="color: var(--warning);">Low</strong><br>
-            <span class="text-muted">3.0 – 3.9 mmol/L</span><br>
-            <small>Have a sugary snack</small>
-        </div>
-        <div
-            style="padding: var(--space-md); background: #ecfdf5; border-radius: var(--radius); border-left: 4px solid var(--success);">
-            <strong style="color: var(--success);">Normal</strong><br>
-            <span class="text-muted">4.0 – 7.0 mmol/L</span><br>
-            <small>Great job! Keep it up</small>
-        </div>
-        <div
-            style="padding: var(--space-md); background: #fffbeb; border-radius: var(--radius); border-left: 4px solid var(--warning);">
-            <strong style="color: var(--warning);">High</strong><br>
-            <span class="text-muted">7.1 – 10.0 mmol/L</span><br>
-            <small>Monitor closely</small>
-        </div>
-        <div
-            style="padding: var(--space-md); background: #fef2f2; border-radius: var(--radius); border-left: 4px solid var(--danger);">
-            <strong style="color: var(--danger);">Very High / Critical</strong><br>
-            <span class="text-muted">Above 10.0 mmol/L</span><br>
-            <small>Contact your doctor</small>
-        </div>
-    </div>
-</div>
+{% block extra_js %}
+{% if ai_enabled %}
+<script>
+    const mDropzone = document.getElementById('meter-dropzone');
+    const mInput = document.getElementById('meter-image-input');
+    const mPreview = document.getElementById('meter-preview');
+    const mPreviewImg = document.getElementById('meter-preview-img');
+    const mReadBtn = document.getElementById('meter-read-btn');
+    const mRetakeBtn = document.getElementById('meter-retake-btn');
+    const mLoading = document.getElementById('meter-loading');
+    const mResult = document.getElementById('meter-result');
+    const mValueDisplay = document.getElementById('meter-value-display');
+    const mUnitDisplay = document.getElementById('meter-unit-display');
+    const mDeviceDisplay = document.getElementById('meter-device-display');
+    const mUseBtn = document.getElementById('meter-use-btn');
+    const mDiscardBtn = document.getElementById('meter-discard-btn');
+    const glucoseInput = document.getElementById('glucose-value');
+
+    let meterFile = null;
+
+    mDropzone.addEventListener('click', () => mInput.click());
+    mDropzone.addEventListener('dragover', (e) => { e.preventDefault(); mDropzone.style.borderColor = 'var(--primary)'; });
+    mDropzone.addEventListener('dragleave', () => mDropzone.style.borderColor = 'var(--border)');
+    mDropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        mDropzone.style.borderColor = 'var(--border)';
+        if (e.dataTransfer.files.length) handleMeterFile(e.dataTransfer.files[0]);
+    });
+
+    mInput.addEventListener('change', () => {
+        if (mInput.files.length) handleMeterFile(mInput.files[0]);
+    });
+
+    function handleMeterFile(file) {
+        meterFile = file;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            mPreviewImg.src = e.target.result;
+            mDropzone.style.display = 'none';
+            mPreview.style.display = 'block';
+            mResult.style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    mRetakeBtn.addEventListener('click', () => {
+        meterFile = null;
+        mPreview.style.display = 'none';
+        mDropzone.style.display = 'block';
+        mResult.style.display = 'none';
+        mInput.value = '';
+    });
+
+    mDiscardBtn.addEventListener('click', () => mRetakeBtn.click());
+
+    mReadBtn.addEventListener('click', async () => {
+        if (!meterFile) return;
+        mPreview.style.display = 'none';
+        mLoading.style.display = 'block';
+        mResult.style.display = 'none';
+
+        const formData = new FormData();
+        formData.append('meter_image', meterFile);
+
+        try {
+            const resp = await fetch('{{ url_for("glucose.scan_glucometer") }}', { method: 'POST', body: formData });
+            const data = await resp.json();
+            mLoading.style.display = 'none';
+
+            if (data.error) {
+                alert('Error: ' + data.error);
+                mPreview.style.display = 'block';
+                return;
+            }
+
+            const val = data.value_mmol || data.value || 0;
+            mValueDisplay.textContent = parseFloat(val).toFixed(1);
+            mUnitDisplay.textContent = 'mmol/L';
+            mDeviceDisplay.textContent = data.device_info !== 'unknown' ? ('Device: ' + data.device_info) : '';
+
+            // Color code
+            if (val < 3.0) mValueDisplay.style.color = 'var(--glucose-critical)';
+            else if (val < 4.0) mValueDisplay.style.color = 'var(--glucose-low)';
+            else if (val <= 7.0) mValueDisplay.style.color = 'var(--glucose-normal)';
+            else if (val <= 10.0) mValueDisplay.style.color = 'var(--glucose-high)';
+            else mValueDisplay.style.color = 'var(--glucose-critical)';
+
+            mResult.style.display = 'block';
+
+            // Store value for use button
+            mUseBtn.dataset.value = parseFloat(val).toFixed(1);
+        } catch (err) {
+            mLoading.style.display = 'none';
+            mPreview.style.display = 'block';
+            alert('Scan failed. Please try again.');
+        }
+    });
+
+    mUseBtn.addEventListener('click', () => {
+        glucoseInput.value = mUseBtn.dataset.value;
+        glucoseInput.style.borderColor = 'var(--success)';
+        glucoseInput.focus();
+        // Scroll to form
+        glucoseInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Reset scanner
+        mResult.style.display = 'none';
+        mDropzone.style.display = 'block';
+        meterFile = null;
+        mInput.value = '';
+    });
+</script>
+{% endif %}
 {% endblock %}
