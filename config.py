@@ -10,9 +10,11 @@ class Config:
     # Priority 1: External Postgres Database (e.g. Supabase, Neon)
     db_url = os.environ.get('DATABASE_URL')
     if db_url:
-        # Fix for SQLAlchemy 1.4+ which requires postgresql://
+        # Fix for SQLAlchemy which requires postgresql+pg8000:// instead of postgres:// or postgresql://
         if db_url.startswith("postgres://"):
-            db_url = db_url.replace("postgres://", "postgresql://", 1)
+            db_url = db_url.replace("postgres://", "postgresql+pg8000://", 1)
+        elif db_url.startswith("postgresql://") and not db_url.startswith("postgresql+pg8000://"):
+            db_url = db_url.replace("postgresql://", "postgresql+pg8000://", 1)
         SQLALCHEMY_DATABASE_URI = db_url
     # Priority 2: Vercel Ephemeral SQLite (resets on cold start!)
     elif os.environ.get('VERCEL'):
