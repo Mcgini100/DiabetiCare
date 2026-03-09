@@ -1,6 +1,6 @@
 // DiabetiCare — Global JavaScript
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // ─── Dark Mode Toggle ─────────────────────────
     const themeToggle = document.getElementById('theme-toggle');
     const html = document.documentElement;
@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (themeToggle) {
-        themeToggle.addEventListener('click', function() {
+        themeToggle.addEventListener('click', function () {
             const current = html.getAttribute('data-theme');
             const next = current === 'dark' ? 'light' : 'dark';
             html.setAttribute('data-theme', next);
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const navbarNav = document.getElementById('navbar-nav');
 
     if (navToggle && navbarNav) {
-        navToggle.addEventListener('click', function() {
+        navToggle.addEventListener('click', function () {
             navbarNav.classList.toggle('show');
             this.textContent = navbarNav.classList.contains('show') ? '✕' : '☰';
         });
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const tourDots = document.querySelectorAll('.tour-dot');
     let currentStep = 0;
 
-    window.nextTourStep = function() {
+    window.nextTourStep = function () {
         if (currentStep < tourSteps.length - 1) {
             tourSteps[currentStep].classList.remove('active');
             tourDots[currentStep].classList.remove('active');
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    window.prevTourStep = function() {
+    window.prevTourStep = function () {
         if (currentStep > 0) {
             tourSteps[currentStep].classList.remove('active');
             tourDots[currentStep].classList.remove('active');
@@ -105,32 +105,73 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // ─── Form validation visual feedback ──────────
     document.querySelectorAll('.form-control').forEach(input => {
-        input.addEventListener('blur', function() {
+        input.addEventListener('blur', function () {
             if (this.value.trim()) {
                 this.style.borderColor = 'var(--success)';
             }
         });
-        input.addEventListener('focus', function() {
+        input.addEventListener('focus', function () {
             this.style.borderColor = 'var(--primary)';
         });
     });
 });
 
-// PWA Installation
+// ─── PWA Install Prompt ──────────────────────
 let deferredPrompt;
-const installBtn = document.getElementById('install-btn');
+const installBanner = document.getElementById('pwa-install-banner');
+const installBtn = document.getElementById('pwa-install-btn');
+const dismissBtn = document.getElementById('pwa-dismiss-btn');
 
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    if (installBtn) {
-        installBtn.classList.remove('hidden');
-        installBtn.addEventListener('click', () => {
-            installBtn.classList.add('hidden');
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
-                deferredPrompt = null;
-            });
-        });
+
+    // Don't show if user dismissed recently (24 hours)
+    const dismissed = localStorage.getItem('diabeticare-install-dismissed');
+    if (dismissed && Date.now() - parseInt(dismissed) < 24 * 60 * 60 * 1000) {
+        return;
+    }
+
+    // Don't show if already installed
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+        return;
+    }
+
+    // Show install banner
+    if (installBanner) {
+        installBanner.style.display = 'block';
+        setTimeout(() => installBanner.classList.add('show'), 100);
+    }
+});
+
+if (installBtn) {
+    installBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log('[PWA] Install outcome:', outcome);
+        deferredPrompt = null;
+        if (installBanner) {
+            installBanner.classList.remove('show');
+            setTimeout(() => installBanner.style.display = 'none', 300);
+        }
+    });
+}
+
+if (dismissBtn) {
+    dismissBtn.addEventListener('click', () => {
+        localStorage.setItem('diabeticare-install-dismissed', Date.now().toString());
+        if (installBanner) {
+            installBanner.classList.remove('show');
+            setTimeout(() => installBanner.style.display = 'none', 300);
+        }
+    });
+}
+
+// Detect if running as installed PWA
+window.addEventListener('appinstalled', () => {
+    console.log('[PWA] App installed successfully');
+    if (installBanner) {
+        installBanner.style.display = 'none';
     }
 });

@@ -1,14 +1,10 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, Response, jsonify, current_app
+from flask import Blueprint, render_template, redirect, url_for, flash, request, Response
 from flask_login import login_required, current_user
 from datetime import datetime, timedelta, timezone
-import base64
-import json
 from extensions import db
 from models import GlucoseReading
 from forms import GlucoseForm
 from utils import glucose_color_code, format_meal_context, calculate_average, export_glucose_csv
-from google import genai
-from google.genai import types
 
 glucose_bp = Blueprint('glucose', __name__)
 
@@ -103,52 +99,3 @@ def delete(reading_id):
     db.session.commit()
     flash('Reading deleted.', 'info')
     return redirect(url_for('glucose.trends'))
-
-
-@glucose_bp.route('/api/read-glucometer', methods=['POST'])
-@login_required
-def read_glucometer():
-    try:
-        data = request.json
-        if not data or 'image' not in data:
-            return jsonify({'error': 'No image provided'}), 400
-
-        header, image_data = data['image'].split(',', 1)
-        mime_type = header.split(';')[0].split(':')[1]
-        decoded_image = base64.b64decode(image_data)
-        
-        client = genai.Client(api_key=current_app.config['GEMINI_API_KEY'])
-        
-        prompt = """
-        Analyze this image of a glucometer screen. Extract the blood glucose reading shown.
-        Return a JSON object (and only the JSON object, absolutely no markdown formatting) with the following structure:
-        {
-            "glucose_value": float (the reading extracted, e.g. 5.6 or 105),
-            "unit": "string" (either "mmol/L" or "mg/dL" if visible, otherwise null)
-        }
-        """
-        
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=[prompt, types.Part.from_bytes(data=decoded_image, mime_type=mime_type)]
-        )
-        
-        text = response.text.strip()
-        if text.startswith('```json'):
-            text = text[7:-3].strip()
-        elif text.startswith('```'):
-            text = text[3:-3].strip()
-            
-        result = json.loads(text)
-        
-        # If the reading is in mg/dL, convert to mmol/L for the app
-        if result.get('unit') == 'mg/dL' and result.get('glucose_value'):
-            result['glucose_value'] = round(result['glucose_value'] / 18.0, 1)
-            result['unit'] = 'mmol/L'
-            
-        return jsonify(result)
-        
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        return jsonify({'error': str(e)}), 500

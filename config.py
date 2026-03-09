@@ -5,23 +5,11 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'diabeticare-secret-key-change-in-production'
-    GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY') or 'AIzaSyDF8RgoDTHoqq4Wo196HIv7uTzHISLM4KE'
 
-    # Priority 1: External Postgres Database (e.g. Supabase, Neon)
-    db_url = os.environ.get('DATABASE_URL')
-    if db_url:
-        # Fix for SQLAlchemy which requires postgresql+pg8000:// instead of postgres:// or postgresql://
-        if db_url.startswith("postgres://"):
-            db_url = db_url.replace("postgres://", "postgresql+pg8000://", 1)
-        elif db_url.startswith("postgresql://") and not db_url.startswith("postgresql+pg8000://"):
-            db_url = db_url.replace("postgresql://", "postgresql+pg8000://", 1)
-        SQLALCHEMY_DATABASE_URI = db_url
-    # Priority 2: Vercel Ephemeral SQLite (resets on cold start!)
-    elif os.environ.get('VERCEL'):
-        SQLALCHEMY_DATABASE_URI = 'sqlite:////tmp/diabeticare.db'
-    # Priority 3: Local SQLite
-    else:
-        SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'diabeticare.db')
+    # Database: Use DATABASE_URL env var for production (Neon PostgreSQL)
+    # Falls back to SQLite for local development
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+        'sqlite:///' + os.path.join(basedir, 'diabeticare.db')
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 

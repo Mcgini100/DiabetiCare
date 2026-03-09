@@ -1,5 +1,5 @@
 import os
-from flask import Flask, redirect, url_for
+from flask import Flask, redirect, url_for, render_template, send_from_directory
 from config import Config
 from extensions import db, login_manager, bcrypt, babel, migrate, csrf
 
@@ -52,6 +52,16 @@ def create_app():
     @app.route('/')
     def index():
         return redirect(url_for('auth.welcome'))
+
+    # Offline fallback page
+    @app.route('/offline')
+    def offline():
+        return render_template('offline.html')
+
+    # Serve service worker from root scope
+    @app.route('/sw.js')
+    def service_worker():
+        return send_from_directory(app.static_folder, 'sw.js', mimetype='application/javascript')
 
     # Create database tables
     with app.app_context():
