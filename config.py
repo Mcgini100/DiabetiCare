@@ -6,12 +6,19 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'diabeticare-secret-key-change-in-production'
 
-    # Use /tmp on Vercel (serverless — ephemeral filesystem)
-    if os.environ.get('VERCEL'):
+    # Priority 1: External Postgres Database (e.g. Supabase, Neon)
+    db_url = os.environ.get('DATABASE_URL')
+    if db_url:
+        # Fix for SQLAlchemy 1.4+ which requires postgresql://
+        if db_url.startswith("postgres://"):
+            db_url = db_url.replace("postgres://", "postgresql://", 1)
+        SQLALCHEMY_DATABASE_URI = db_url
+    # Priority 2: Vercel Ephemeral SQLite (resets on cold start!)
+    elif os.environ.get('VERCEL'):
         SQLALCHEMY_DATABASE_URI = 'sqlite:////tmp/diabeticare.db'
+    # Priority 3: Local SQLite
     else:
-        SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-            'sqlite:///' + os.path.join(basedir, 'diabeticare.db')
+        SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'diabeticare.db')
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
