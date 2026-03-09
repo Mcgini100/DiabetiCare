@@ -444,7 +444,7 @@ img {
 /* ─── Quick Actions ────────────────────────── */
 .quick-actions {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: var(--space-md);
     margin-bottom: var(--space-xl);
 }
@@ -453,6 +453,7 @@ img {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: var(--space-sm);
     padding: var(--space-lg);
     border-radius: var(--radius-lg);
@@ -465,9 +466,72 @@ img {
     cursor: pointer;
     transition: var(--transition-slow);
     box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+    min-height: 160px;
 }
 
-.quick-action:hover {
+/* Image-backed variant */
+.quick-action.quick-action-img {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: none;
+    color: white;
+    box-shadow: var(--shadow-md);
+}
+
+.quick-action-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+            rgba(0, 0, 0, 0.15) 0%,
+            rgba(0, 0, 0, 0.55) 100%);
+    transition: var(--transition-slow);
+    z-index: 1;
+    border-radius: var(--radius-lg);
+}
+
+.quick-action-label {
+    position: relative;
+    z-index: 2;
+    font-weight: 700;
+    font-size: var(--font-size-base);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    letter-spacing: 0.02em;
+}
+
+.quick-action.quick-action-img .icon {
+    position: relative;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: white;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.quick-action.quick-action-img:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: var(--shadow-lg);
+    color: white;
+}
+
+.quick-action.quick-action-img:hover .quick-action-overlay {
+    background: linear-gradient(180deg,
+            rgba(13, 148, 136, 0.2) 0%,
+            rgba(0, 0, 0, 0.6) 100%);
+}
+
+.quick-action.quick-action-img:hover .icon {
+    background: rgba(13, 148, 136, 0.5);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: scale(1.1);
+}
+
+/* Original non-image styles */
+.quick-action:not(.quick-action-img):hover {
     border-color: var(--primary);
     box-shadow: var(--shadow-glow);
     transform: translateY(-3px);
