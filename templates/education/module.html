@@ -11,7 +11,7 @@
     </div>
     <div class="d-flex gap-md mt-xl">
         {% if module.quizzes.count() > 0 %}
-        <a href="{{ url_for('education.quiz', module_id=module.id) }}" class="btn btn-primary">Take Quiz 📝</a>
+        <a href="{{ url_for('education.quiz', module_id=module.id) }}" class="btn btn-primary">Take Quiz</a>
         {% endif %}
         <a href="{{ url_for('education.index') }}" class="btn btn-secondary">← Back to Resources</a>
     </div>

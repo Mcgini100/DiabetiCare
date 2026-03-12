@@ -397,6 +397,25 @@ img {
     margin-bottom: var(--space-xl);
 }
 
+/* Two-column page layout (forms + sidebar) */
+.page-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+}
+
+@media (max-width: 768px) {
+    .page-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Table wrapper for mobile scrolling */
+.table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
 .stat-card {
     display: flex;
     align-items: flex-start;
@@ -1440,6 +1459,13 @@ tr:last-child td {
     animation-delay: 0.3s;
 }
 
+/* ─── Page Grid (two-column layouts) ────────── */
+.page-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+}
+
 /* ─── Responsive ───────────────────────────── */
 @media (max-width: 768px) {
     .main-content {
@@ -1482,6 +1508,53 @@ tr:last-child td {
     .page-header h1 {
         font-size: var(--font-size-2xl);
     }
+
+    /* Collapse two-column page grids to single column */
+    .page-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Wrap action button rows */
+    .d-flex {
+        flex-wrap: wrap;
+    }
+
+    /* Medication & appointment action buttons stack */
+    .reminder-item {
+        flex-wrap: wrap;
+        gap: var(--space-sm);
+    }
+
+    .reminder-item .d-flex {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    /* Community tabs scroll */
+    .tabs {
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+
+    .tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* AI nutrition stats grid */
+    .nutrition-stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    /* Thread meta wrap */
+    .thread-meta {
+        flex-wrap: wrap;
+        gap: var(--space-xs);
+    }
+
+    /* Card hover — disable transform on touch */
+    .card:hover {
+        transform: none;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1495,6 +1568,18 @@ tr:last-child td {
 
     .chart-container {
         height: 220px;
+    }
+
+    /* Smaller quick action cards */
+    .quick-action {
+        min-height: 120px;
+        padding: var(--space-md);
+    }
+
+    .quick-action .icon {
+        width: 44px;
+        height: 44px;
+        font-size: 1.4rem;
     }
 }
 
@@ -1670,12 +1755,283 @@ tr:last-child td {
     opacity: 1;
 }
 
-@media (max-width: 480px) {
+/* ============================================
+   RESPONSIVE — Mobile-First Overrides
+   ============================================ */
+
+/* ─── Tablet & Below (≤ 768px) ───────────── */
+@media (max-width: 768px) {
+    .main-content {
+        padding: var(--space-md);
+    }
+
+    .page-header h1 {
+        font-size: var(--font-size-2xl);
+    }
+
+    .page-header p {
+        font-size: var(--font-size-base);
+    }
+
+    /* Navigation: hamburger menu */
+    .nav-toggle {
+        display: block;
+    }
+
+    .navbar-nav {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        background: var(--bg-card);
+        border-bottom: 1px solid var(--border);
+        box-shadow: var(--shadow-md);
+        padding: var(--space-sm);
+        z-index: 99;
+    }
+
+    [data-theme="dark"] .navbar-nav {
+        background: var(--bg-card);
+    }
+
+    .navbar-nav.show {
+        display: flex;
+    }
+
+    .navbar-nav a {
+        padding: var(--space-md);
+        border-radius: var(--radius);
+        font-size: var(--font-size-base);
+    }
+
+    .navbar-inner {
+        flex-wrap: wrap;
+        position: relative;
+    }
+
+    /* Dashboard grids → single column */
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Quick actions → 2 columns */
+    .quick-actions {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-sm);
+    }
+
+    .quick-action {
+        min-height: 130px;
+        padding: var(--space-md);
+    }
+
+    .quick-action .icon {
+        width: 48px;
+        height: 48px;
+        font-size: 1.5rem;
+    }
+
+    /* Form rows → stack */
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    /* Touch-friendly inputs */
+    .form-control {
+        padding: 0.85rem 1rem;
+        font-size: var(--font-size-base);
+        min-height: 44px;
+    }
+
+    .btn {
+        padding: 0.85rem 1.25rem;
+        min-height: 44px;
+    }
+
+    .btn-sm {
+        padding: 0.5rem 0.85rem;
+        min-height: 36px;
+    }
+
+    /* Stat cards compact */
+    .stat-value {
+        font-size: var(--font-size-2xl);
+    }
+
+    /* Two-column sections → stack */
+    [style*="grid-template-columns: repeat(auto-fit"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Education grid */
+    .education-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Tables: scroll horizontally */
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+        min-width: 500px;
+    }
+
+    /* Chart container */
+    .chart-container {
+        height: 220px;
+    }
+
+    /* Card padding reduce */
+    .card {
+        padding: var(--space-md);
+    }
+
+    /* PWA install banner */
     .pwa-install-content {
         flex-wrap: wrap;
+        gap: var(--space-sm);
     }
 
     .pwa-install-content img {
-        display: none;
+        width: 36px;
+        height: 36px;
     }
 }
+
+/* ─── Small Phones (≤ 480px) ─────────────── */
+@media (max-width: 480px) {
+    .main-content {
+        padding: var(--space-sm);
+    }
+
+    .page-header {
+        margin-bottom: var(--space-md);
+    }
+
+    .page-header h1 {
+        font-size: var(--font-size-xl);
+    }
+
+    /* Quick actions → 2 columns tighter */
+    .quick-actions {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-xs);
+    }
+
+    .quick-action {
+        min-height: 110px;
+        padding: var(--space-sm);
+        border-radius: var(--radius);
+    }
+
+    .quick-action .icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.3rem;
+    }
+
+    .quick-action-label {
+        font-size: var(--font-size-sm);
+    }
+
+    /* Buttons full width */
+    .btn-lg {
+        width: 100%;
+    }
+
+    /* Card headers */
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-sm);
+    }
+
+    /* Stat value smaller */
+    .stat-value {
+        font-size: var(--font-size-xl);
+    }
+
+    /* Reminder items */
+    .reminder-item {
+        padding: var(--space-sm);
+        gap: var(--space-sm);
+    }
+
+    .reminder-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 0.85rem;
+    }
+
+    /* Footer */
+    .footer {
+        padding: var(--space-md);
+        font-size: var(--font-size-xs);
+    }
+
+    /* Navbar brand */
+    .navbar-brand {
+        font-size: var(--font-size-base);
+    }
+
+    .navbar-brand .logo-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 1rem;
+    }
+
+    /* Glucose badge */
+    .glucose-badge {
+        font-size: var(--font-size-xs);
+        padding: 0.15rem 0.5rem;
+    }
+
+    /* Progress bar */
+    .progress-bar-container {
+        height: 8px;
+    }
+
+    /* Diet log 2-col → 1-col */
+    [style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* AI scan result macro cards → 2x2 */
+    .dashboard-grid[style*="repeat(4, 1fr)"] {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    /* PWA banner */
+    .pwa-install-content img {
+        display: none;
+    }
+
+    .pwa-install-text strong {
+        font-size: var(--font-size-sm);
+    }
+}
+
+/* ─── Touch / Hover Fix ──────────────────── */
+@media (hover: none) {
+    .card:hover {
+        transform: none;
+        box-shadow: var(--shadow);
+    }
+
+    .quick-action:hover {
+        transform: none;
+    }
+
+    .quick-action.quick-action-img:hover {
+        transform: none;
+    }
+
+    .btn-primary:hover,
+    .btn-accent:hover {
+        transform: none;
+    }
+}

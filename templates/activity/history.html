@@ -2,7 +2,7 @@
 {% block title %}Exercise History — DiabetiCare{% endblock %}
 {% block content %}
 <div class="page-header">
-    <h1>🏃 Exercise History</h1>
+    <h1>Exercise History</h1>
 </div>
 <div class="dashboard-grid mb-xl">
     <div class="card">
@@ -16,7 +16,7 @@
     </div>
     <div class="card">
         <div class="stat-card">
-            <div class="card-icon warning">🔥</div>
+            <div class="card-icon warning">&#x25CF;</div>
             <div>
                 <div class="stat-label">Calories Burned</div>
                 <div class="stat-value" style="color: var(--warning);">{{ weekly_calories }}</div>
@@ -52,7 +52,7 @@
                         <form method="POST" action="{{ url_for('activity.delete', exercise_id=e.id) }}"
                             style="display:inline;" onsubmit="return confirm('Delete?');"><input type="hidden"
                                 name="csrf_token" value="{{ csrf_token() }}"><button
-                                class="btn btn-sm btn-danger">🗑</button></form>
+                                class="btn btn-sm btn-danger">&times;</button></form>
                     </td>
                 </tr>
                 {% endfor %}
@@ -60,7 +60,7 @@
         </table>
     </div>
     {% else %}<div class="empty-state">
-        <div class="icon">🏃</div>
+        <div class="icon">&#x25CF;</div>
         <h3>No exercises logged</h3>
     </div>{% endif %}
 </div>

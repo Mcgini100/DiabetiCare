@@ -2,7 +2,7 @@
 {% block title %}Complications History — DiabetiCare{% endblock %}
 {% block content %}
 <div class="page-header">
-    <h1>⚠️ Complications History</h1>
+    <h1>Complications History</h1>
 </div>
 <div class="d-flex justify-between align-center mb-lg"><a href="{{ url_for('complications.log_complication') }}"
         class="btn btn-primary">+ Log Event</a></div>
@@ -35,7 +35,7 @@
         </table>
     </div>
     {% else %}<div class="empty-state">
-        <div class="icon">✅</div>
+        <div class="icon">&#x25CF;</div>
         <h3>No complications logged</h3>
         <p>That's great news!</p>
     </div>{% endif %}

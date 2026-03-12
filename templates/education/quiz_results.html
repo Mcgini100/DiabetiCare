@@ -2,10 +2,10 @@
 {% block title %}Quiz Results — DiabetiCare{% endblock %}
 {% block content %}
 <div class="page-header">
-    <h1>📊 Quiz Results: {{ module.title }}</h1>
+    <h1>Quiz Results: {{ module.title }}</h1>
 </div>
 <div class="card mb-xl fade-in-up" style="text-align: center; padding: var(--space-2xl);">
-    <div style="font-size: 4rem;">{{ '🎉' if pct >= 80 else ('👍' if pct >= 50 else '📖') }}</div>
+    <div style="font-size: 4rem;">&#x25CF;</div>
     <h2
         style="font-size: var(--font-size-3xl); color: {{ 'var(--success)' if pct >= 80 else ('var(--warning)' if pct >= 50 else 'var(--info)') }};">
         {{ score }}/{{ total }} ({{ pct }}%)
@@ -20,7 +20,7 @@
         <div class="font-bold mb-sm">{{ r.question }}</div>
         <div>Your answer: <strong>{{ r.user_answer|upper }}</strong> {{ '✓' if r.correct else '✗ (Correct: ' +
             r.correct_answer|upper + ')' }}</div>
-        {% if r.explanation %}<p class="text-muted mt-sm" style="font-size: var(--font-size-sm);">💡 {{ r.explanation }}
+        {% if r.explanation %}<p class="text-muted mt-sm" style="font-size: var(--font-size-sm);">{{ r.explanation }}
         </p>{% endif %}
     </div>
     {% endfor %}

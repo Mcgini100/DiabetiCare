@@ -2,11 +2,11 @@
 {% block title %}Settings — DiabetiCare{% endblock %}
 {% block content %}
 <div class="page-header">
-    <h1>⚙️ Settings</h1>
+    <h1>Settings</h1>
     <p>Manage your account and preferences</p>
 </div>
 
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg);">
+<div class="page-grid">
     <!-- Profile & Preferences -->
     <div class="card fade-in-up">
         <h3 style="margin-bottom: var(--space-lg);">Profile & Preferences</h3>
@@ -22,7 +22,7 @@
             <div class="form-check mb-lg">{{ form.high_contrast(id="set-contrast") }}{{ form.high_contrast.label }}
             </div>
 
-            <h4 style="margin-bottom: var(--space-md);">🔔 Reminders</h4>
+            <h4 style="margin-bottom: var(--space-md);">Reminders</h4>
             <div class="form-check">{{ form.reminder_medication(id="set-rmed") }}{{ form.reminder_medication.label }}
             </div>
             <div class="form-check">{{ form.reminder_glucose(id="set-rgluc") }}{{ form.reminder_glucose.label }}</div>
@@ -37,34 +37,34 @@
     <!-- Quick Links -->
     <div>
         <div class="card fade-in-up mb-lg">
-            <h3 style="margin-bottom: var(--space-md);">📤 Data & Export</h3>
+            <h3 style="margin-bottom: var(--space-md);">Data & Export</h3>
             <p class="text-muted mb-md">Export your health data for clinic visits or personal records.</p>
             <div class="d-flex gap-sm">
-                <a href="{{ url_for('settings.export_csv') }}" class="btn btn-secondary">📥 Export CSV</a>
-                <a href="{{ url_for('settings.export_pdf') }}" class="btn btn-primary">📄 Export PDF Report</a>
+                <a href="{{ url_for('settings.export_csv') }}" class="btn btn-secondary">Export CSV</a>
+                <a href="{{ url_for('settings.export_pdf') }}" class="btn btn-primary">Export PDF Report</a>
             </div>
         </div>
 
         <div class="card fade-in-up mb-lg">
-            <h3 style="margin-bottom: var(--space-md);">🎯 Goals</h3>
+            <h3 style="margin-bottom: var(--space-md);">Goals</h3>
             <p class="text-muted mb-md">Set health goals and track progress.</p>
             <a href="{{ url_for('settings.goals') }}" class="btn btn-secondary">Manage Goals</a>
         </div>
 
         <div class="card fade-in-up mb-lg">
-            <h3 style="margin-bottom: var(--space-md);">💬 Feedback</h3>
+            <h3 style="margin-bottom: var(--space-md);">Feedback</h3>
             <p class="text-muted mb-md">Help us improve DiabetiCare.</p>
             <a href="{{ url_for('settings.feedback') }}" class="btn btn-secondary">Send Feedback</a>
         </div>
 
         <div class="card fade-in-up mb-lg">
-            <h3 style="margin-bottom: var(--space-md);">📋 Self-Assessment</h3>
+            <h3 style="margin-bottom: var(--space-md);">Self-Assessment</h3>
             <p class="text-muted mb-md">Evaluate your diabetes management.</p>
             <a href="{{ url_for('assessment.questionnaire') }}" class="btn btn-secondary">Take Assessment</a>
         </div>
 
         <div class="card fade-in-up">
-            <h3 style="margin-bottom: var(--space-md);">🚪 Account</h3>
+            <h3 style="margin-bottom: var(--space-md);">Account</h3>
             <a href="{{ url_for('auth.logout') }}" class="btn btn-danger">Sign Out</a>
         </div>
     </div>

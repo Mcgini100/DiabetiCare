@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="page-header">
-    <h1>{{ greeting }}, {{ current_user.name.split()[0] }} 👋</h1>
+    <h1>{{ greeting }}, {{ current_user.name.split()[0] }}</h1>
     <p>Here's your health overview for today</p>
 </div>
 
@@ -12,37 +12,37 @@
     <a href="{{ url_for('glucose.log') }}" class="quick-action quick-action-img fade-in-up"
         style="background-image: url('{{ url_for('static', filename='images/glucose.jpg') }}');">
         <div class="quick-action-overlay"></div>
-        <span class="icon">🩸</span>
+        <span class="icon">&#x2B24;</span>
         <span class="quick-action-label">Log Glucose</span>
     </a>
     <a href="{{ url_for('medication.list_medications') }}" class="quick-action quick-action-img fade-in-up"
         style="background-image: url('{{ url_for('static', filename='images/medication.jpg') }}');">
         <div class="quick-action-overlay"></div>
-        <span class="icon">💊</span>
+        <span class="icon">&#x2B24;</span>
         <span class="quick-action-label">Medication</span>
     </a>
     <a href="{{ url_for('diet.log_meal') }}" class="quick-action quick-action-img fade-in-up"
         style="background-image: url('{{ url_for('static', filename='images/log_meal.jpg') }}');">
         <div class="quick-action-overlay"></div>
-        <span class="icon">🥗</span>
+        <span class="icon">&#x2B24;</span>
         <span class="quick-action-label">Log Meal</span>
     </a>
     <a href="{{ url_for('activity.log_exercise') }}" class="quick-action quick-action-img fade-in-up"
         style="background-image: url('{{ url_for('static', filename='images/exercise.jpg') }}');">
         <div class="quick-action-overlay"></div>
-        <span class="icon">🏃</span>
+        <span class="icon">&#x2B24;</span>
         <span class="quick-action-label">Log Exercise</span>
     </a>
     <a href="{{ url_for('appointments.list_appointments') }}" class="quick-action quick-action-img fade-in-up"
         style="background-image: url('{{ url_for('static', filename='images/appointment.jpg') }}');">
         <div class="quick-action-overlay"></div>
-        <span class="icon">📅</span>
+        <span class="icon">&#x2B24;</span>
         <span class="quick-action-label">Appointments</span>
     </a>
     <a href="{{ url_for('education.index') }}" class="quick-action quick-action-img fade-in-up"
         style="background-image: url('{{ url_for('static', filename='images/learn.jpg') }}');">
         <div class="quick-action-overlay"></div>
-        <span class="icon">📚</span>
+        <span class="icon">&#x2B24;</span>
         <span class="quick-action-label">Learn</span>
     </a>
 </div>
@@ -52,7 +52,7 @@
     <!-- Latest Glucose -->
     <div class="card fade-in-up">
         <div class="stat-card">
-            <div class="card-icon primary">🩸</div>
+            <div class="card-icon primary">&#x2B24;</div>
             <div>
                 <div class="stat-label">Latest Blood Glucose</div>
                 {% if latest_glucose %}
@@ -78,7 +78,7 @@
     <!-- Weekly Average -->
     <div class="card fade-in-up">
         <div class="stat-card">
-            <div class="card-icon success">📈</div>
+            <div class="card-icon success">&#x2191;</div>
             <div>
                 <div class="stat-label">7-Day Average</div>
                 <div class="stat-value" style="color: var(--primary);">
@@ -96,7 +96,7 @@
     <!-- Medication Adherence -->
     <div class="card fade-in-up">
         <div class="stat-card">
-            <div class="card-icon warning">💊</div>
+            <div class="card-icon warning">&#x2B24;</div>
             <div>
                 <div class="stat-label">Medication Adherence (7d)</div>
                 <div class="stat-value"
@@ -113,7 +113,7 @@
     <!-- Exercise This Week -->
     <div class="card fade-in-up">
         <div class="stat-card">
-            <div class="card-icon accent">🏃</div>
+            <div class="card-icon accent">&#x2B24;</div>
             <div>
                 <div class="stat-label">Exercise This Week</div>
                 <div class="stat-value" style="color: var(--accent);">
@@ -135,7 +135,7 @@
 <!-- Glucose Trends Chart -->
 <div class="card mb-xl fade-in-up">
     <div class="card-header">
-        <h3>🩸 Blood Glucose Trends (Last 7 Days)</h3>
+        <h3>Blood Glucose Trends (Last 7 Days)</h3>
         <a href="{{ url_for('glucose.trends') }}" class="btn btn-sm btn-secondary">View All</a>
     </div>
     {% if chart_values %}
@@ -144,7 +144,6 @@
     </div>
     {% else %}
     <div class="empty-state" style="padding: var(--space-lg);">
-        <div class="icon">📊</div>
         <h3>No data yet</h3>
         <p>Start logging your blood glucose to see trends here.</p>
         <a href="{{ url_for('glucose.log') }}" class="btn btn-primary">Log First Reading</a>
@@ -158,7 +157,7 @@
     <!-- Today's Medications -->
     <div class="card fade-in-up">
         <div class="card-header">
-            <h3>💊 Today's Medications</h3>
+            <h3>Today's Medications</h3>
             <a href="{{ url_for('medication.list_medications') }}" class="btn btn-sm btn-secondary">Manage</a>
         </div>
         {% if active_meds %}
@@ -194,14 +193,14 @@
     <!-- Upcoming Appointments -->
     <div class="card fade-in-up">
         <div class="card-header">
-            <h3>📅 Upcoming Appointments</h3>
+            <h3>Upcoming Appointments</h3>
             <a href="{{ url_for('appointments.add_appointment') }}" class="btn btn-sm btn-secondary">+ New</a>
         </div>
         {% if upcoming_appointments %}
         <ul class="reminder-list">
             {% for appt in upcoming_appointments %}
             <li class="reminder-item">
-                <div class="reminder-icon" style="background: #eff6ff; color: var(--info);">📋</div>
+                <div class="reminder-icon" style="background: #eff6ff; color: var(--info);">&#x2022;</div>
                 <div class="reminder-content">
                     <div class="reminder-title">{{ appt.title }}</div>
                     <div class="reminder-time">
@@ -228,7 +227,7 @@
     {% if active_goals %}
     <div class="card fade-in-up">
         <div class="card-header">
-            <h3>🎯 Active Goals</h3>
+            <h3>Active Goals</h3>
         </div>
         {% for goal in active_goals %}
         <div style="margin-bottom: var(--space-md);">
@@ -250,7 +249,7 @@
     {% if recent_badges %}
     <div class="card fade-in-up">
         <div class="card-header">
-            <h3>🏆 Recent Badges</h3>
+            <h3>Recent Badges</h3>
         </div>
         <div style="display: flex; gap: var(--space-md); flex-wrap: wrap;">
             {% for badge in recent_badges %}

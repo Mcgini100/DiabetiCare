@@ -2,10 +2,10 @@
 {% block title %}Assessment Results — DiabetiCare{% endblock %}
 {% block content %}
 <div class="page-header">
-    <h1>📊 Your Self-Assessment Results</h1>
+    <h1>Your Self-Assessment Results</h1>
 </div>
 <div class="card mb-xl fade-in-up" style="text-align: center; padding: var(--space-2xl); max-width: 600px;">
-    <div style="font-size: 4rem;">{{ '🌟' if pct >= 80 else ('👍' if pct >= 60 else ('💪' if pct >= 40 else '📖')) }}
+    <div style="font-size: 4rem;">&#x25CF;
     </div>
     <h2
         style="font-size: var(--font-size-3xl); color: {{ 'var(--success)' if pct >= 80 else ('var(--primary)' if pct >= 60 else ('var(--warning)' if pct >= 40 else 'var(--info)')) }};">

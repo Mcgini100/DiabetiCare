@@ -2,7 +2,7 @@
 {% block title %}Meal History — DiabetiCare{% endblock %}
 {% block content %}
 <div class="page-header">
-    <h1>🥗 Meal History</h1>
+    <h1>Meal History</h1>
 </div>
 <div class="d-flex justify-between align-center mb-lg"><a href="{{ url_for('diet.log_meal') }}"
         class="btn btn-primary">+ Log Meal</a></div>
@@ -33,7 +33,7 @@
                     <td>
                         <form method="POST" action="{{ url_for('diet.delete', meal_id=m.id) }}" style="display:inline;"
                             onsubmit="return confirm('Delete?');"><input type="hidden" name="csrf_token"
-                                value="{{ csrf_token() }}"><button class="btn btn-sm btn-danger">🗑</button></form>
+                                value="{{ csrf_token() }}"><button class="btn btn-sm btn-danger">&times;</button></form>
                     </td>
                 </tr>
                 {% endfor %}
@@ -42,7 +42,7 @@
     </div>
     {% else %}
     <div class="empty-state">
-        <div class="icon">🥗</div>
+        <div class="icon">&#x25CF;</div>
         <h3>No meals logged yet</h3>
     </div>
     {% endif %}

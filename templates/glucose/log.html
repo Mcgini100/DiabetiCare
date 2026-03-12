@@ -2,26 +2,26 @@
 {% block title %}Log Glucose — DiabetiCare{% endblock %}
 {% block content %}
 <div class="page-header">
-    <h1>🩸 Log Blood Glucose</h1>
+    <h1>Log Blood Glucose</h1>
     <p>Enter your reading manually or scan your glucometer</p>
 </div>
 
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg);">
+<div class="page-grid">
     <div>
         {% if ai_enabled %}
         <!-- AI Glucometer Scanner -->
         <div class="card fade-in-up mb-lg"
             style="border: 2px solid var(--primary); position: relative; overflow: hidden;">
-            <div style="position: absolute; top: 12px; right: 12px;"><span class="badge badge-primary">🤖 AI</span>
+            <div style="position: absolute; top: 12px; right: 12px;"><span class="badge badge-primary">AI</span>
             </div>
-            <h3 style="margin-bottom: var(--space-md);">📸 Scan Glucometer</h3>
+            <h3 style="margin-bottom: var(--space-md);">Scan Glucometer</h3>
             <p class="text-muted mb-md" style="font-size: var(--font-size-sm);">Take a photo of your glucometer display
                 to automatically read the value.</p>
 
             <div id="meter-scan-area">
                 <div id="meter-dropzone"
                     style="border: 2px dashed var(--border); border-radius: var(--radius-lg); padding: var(--space-2xl); text-align: center; cursor: pointer; transition: var(--transition);">
-                    <div style="font-size: 3rem; margin-bottom: var(--space-sm);">🔬</div>
+                    <div style="font-size: 2rem; margin-bottom: var(--space-sm); color: var(--primary);">&#x26B2;</div>
                     <p class="font-semibold">Tap to take photo of meter</p>
                     <p class="text-muted" style="font-size: var(--font-size-xs);">Show the screen clearly · JPG, PNG,
                         WebP</p>
@@ -33,8 +33,8 @@
                     <img id="meter-preview-img"
                         style="max-width: 100%; max-height: 200px; border-radius: var(--radius); object-fit: cover;">
                     <div class="d-flex gap-sm mt-md" style="justify-content: center;">
-                        <button id="meter-read-btn" class="btn btn-primary">🔍 Read Value</button>
-                        <button id="meter-retake-btn" class="btn btn-secondary">🔄 Retake</button>
+                        <button id="meter-read-btn" class="btn btn-primary">Read Value</button>
+                        <button id="meter-retake-btn" class="btn btn-secondary">Retake</button>
                     </div>
                 </div>
 
@@ -56,7 +56,7 @@
                         </div>
                     </div>
                     <div class="d-flex gap-sm mt-md" style="justify-content: center;">
-                        <button id="meter-use-btn" class="btn btn-primary">✅ Use This Value</button>
+                        <button id="meter-use-btn" class="btn btn-primary">Use This Value</button>
                         <button id="meter-discard-btn" class="btn btn-secondary">Try Again</button>
                     </div>
                 </div>
@@ -66,7 +66,7 @@
 
         <!-- Manual Entry -->
         <div class="card fade-in-up">
-            <h3 style="margin-bottom: var(--space-lg);">✏️ {{ 'Manual Entry' if ai_enabled else 'Record Reading' }}</h3>
+            <h3 style="margin-bottom: var(--space-lg);">{{ 'Manual Entry' if ai_enabled else 'Record Reading' }}</h3>
             <form method="POST">
                 {{ form.hidden_tag() }}
                 <div class="form-group">
@@ -88,14 +88,14 @@
             <!-- Glucose Range Guide -->
             <div
                 style="margin-top: var(--space-lg); padding: var(--space-md); background: var(--bg); border-radius: var(--radius);">
-                <h4 style="margin-bottom: var(--space-sm); font-size: var(--font-size-sm);">📊 Quick Reference</h4>
+                <h4 style="margin-bottom: var(--space-sm); font-size: var(--font-size-sm);">Quick Reference</h4>
                 <div
                     style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-xs); font-size: var(--font-size-xs);">
-                    <span style="color: var(--glucose-critical);">🔴 Critical Low: &lt;3.0</span>
-                    <span style="color: var(--glucose-low);">🟡 Low: 3.0–3.9</span>
-                    <span style="color: var(--glucose-normal);">🟢 Normal: 4.0–7.0</span>
-                    <span style="color: var(--glucose-high);">🟡 High: 7.1–10.0</span>
-                    <span style="color: var(--glucose-critical);">🔴 Very High: &gt;10.0</span>
+                    <span style="color: var(--glucose-critical);">● Critical Low: &lt;3.0</span>
+                    <span style="color: var(--glucose-low);">● Low: 3.0–3.9</span>
+                    <span style="color: var(--glucose-normal);">● Normal: 4.0–7.0</span>
+                    <span style="color: var(--glucose-high);">● High: 7.1–10.0</span>
+                    <span style="color: var(--glucose-critical);">● Very High: &gt;10.0</span>
                 </div>
             </div>
         </div>

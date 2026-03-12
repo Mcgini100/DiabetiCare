@@ -2,10 +2,10 @@
 {% block title %}Goals — DiabetiCare{% endblock %}
 {% block content %}
 <div class="page-header">
-    <h1>🎯 Health Goals</h1>
+    <h1>Health Goals</h1>
     <p>Set targets and track your progress</p>
 </div>
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg);">
+<div class="page-grid">
     <div class="card fade-in-up">
         <h3 style="margin-bottom: var(--space-lg);">Set a New Goal</h3>
         <form method="POST">
@@ -46,17 +46,17 @@
                     g.target_value }} {{ g.unit or '' }}</div>
                 {% endif %}
                 <a href="{{ url_for('settings.achieve_goal', goal_id=g.id) }}" class="btn btn-sm btn-primary mt-sm">Mark
-                    Achieved ✓</a>
+                    Achieved</a>
             </div>
             {% endfor %}
         </div>
         {% endif %}
         {% if achieved_goals %}
         <div class="card fade-in-up">
-            <h3 style="margin-bottom: var(--space-md); color: var(--success);">🏆 Achieved</h3>
+            <h3 style="margin-bottom: var(--space-md); color: var(--success);">Achieved</h3>
             {% for g in achieved_goals %}
             <div class="d-flex align-center gap-sm mb-sm" style="opacity: 0.7;">
-                <span>✅</span><span>{{ g.title }}</span>
+                <span>✓</span><span>{{ g.title }}</span>
             </div>
             {% endfor %}
         </div>

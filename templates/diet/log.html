@@ -2,26 +2,26 @@
 {% block title %}Log Meal — DiabetiCare{% endblock %}
 {% block content %}
 <div class="page-header">
-    <h1>🥗 Log Meal</h1>
+    <h1>Log Meal</h1>
     <p>Record what you eat — manually or with AI analysis</p>
 </div>
 
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg);">
+<div class="page-grid">
     <div>
         {% if ai_enabled %}
         <!-- AI Food Scanner -->
         <div class="card fade-in-up mb-lg"
             style="border: 2px solid var(--primary); position: relative; overflow: hidden;">
-            <div style="position: absolute; top: 12px; right: 12px;"><span class="badge badge-primary">🤖 AI</span>
+            <div style="position: absolute; top: 12px; right: 12px;"><span class="badge badge-primary">AI</span>
             </div>
-            <h3 style="margin-bottom: var(--space-md);">📸 Scan Your Meal</h3>
+            <h3 style="margin-bottom: var(--space-md);">Scan Your Meal</h3>
             <p class="text-muted mb-md" style="font-size: var(--font-size-sm);">Take a photo or upload an image — AI
                 will identify the food and calculate nutrition automatically.</p>
 
             <div id="scan-area">
                 <div id="scan-dropzone"
                     style="border: 2px dashed var(--border); border-radius: var(--radius-lg); padding: var(--space-2xl); text-align: center; cursor: pointer; transition: var(--transition);">
-                    <div style="font-size: 3rem; margin-bottom: var(--space-sm);">📷</div>
+                    <div style="font-size: 2rem; margin-bottom: var(--space-sm); color: var(--primary);">&#x26B2;</div>
                     <p class="font-semibold">Tap to take photo or upload</p>
                     <p class="text-muted" style="font-size: var(--font-size-xs);">JPG, PNG, WebP — Max 10MB</p>
                     <input type="file" id="food-image-input" accept="image/jpeg,image/png,image/webp"
@@ -32,8 +32,8 @@
                     <img id="scan-preview-img"
                         style="max-width: 100%; max-height: 250px; border-radius: var(--radius); object-fit: cover;">
                     <div class="d-flex gap-sm mt-md" style="justify-content: center;">
-                        <button id="scan-analyze-btn" class="btn btn-primary">🔍 Analyze Food</button>
-                        <button id="scan-retake-btn" class="btn btn-secondary">🔄 Retake</button>
+                        <button id="scan-analyze-btn" class="btn btn-primary">Analyze Food</button>
+                        <button id="scan-retake-btn" class="btn btn-secondary">Retake</button>
                     </div>
                 </div>
 
@@ -49,32 +49,28 @@
             <div id="scan-results" style="display: none; margin-top: var(--space-lg);">
                 <div
                     style="padding: var(--space-md); background: var(--primary-50); border-radius: var(--radius); margin-bottom: var(--space-md);">
-                    <h4 style="color: var(--primary); margin-bottom: var(--space-sm);">🤖 AI Analysis Results</h4>
+                    <h4 style="color: var(--primary); margin-bottom: var(--space-sm);">AI Analysis Results</h4>
                     <p id="result-foods" class="font-semibold"></p>
                     <p id="result-confidence" class="text-muted" style="font-size: var(--font-size-xs);"></p>
                 </div>
-                <div class="dashboard-grid"
+                <div class="dashboard-grid nutrition-stats-grid"
                     style="grid-template-columns: repeat(4, 1fr); gap: var(--space-sm); margin-bottom: var(--space-md);">
                     <div class="card" style="text-align: center; padding: var(--space-md);">
-                        <div style="font-size: 1.5rem;">🔥</div>
                         <div class="stat-value" style="font-size: var(--font-size-xl); color: var(--accent);"
                             id="result-calories">0</div>
                         <div class="stat-label">Calories</div>
                     </div>
                     <div class="card" style="text-align: center; padding: var(--space-md);">
-                        <div style="font-size: 1.5rem;">🍚</div>
                         <div class="stat-value" style="font-size: var(--font-size-xl); color: var(--warning);"
                             id="result-carbs">0g</div>
                         <div class="stat-label">Carbs</div>
                     </div>
                     <div class="card" style="text-align: center; padding: var(--space-md);">
-                        <div style="font-size: 1.5rem;">🥩</div>
                         <div class="stat-value" style="font-size: var(--font-size-xl); color: var(--danger);"
                             id="result-protein">0g</div>
                         <div class="stat-label">Protein</div>
                     </div>
                     <div class="card" style="text-align: center; padding: var(--space-md);">
-                        <div style="font-size: 1.5rem;">🧈</div>
                         <div class="stat-value" style="font-size: var(--font-size-xl); color: var(--info);"
                             id="result-fat">0g</div>
                         <div class="stat-label">Fat</div>
@@ -95,7 +91,7 @@
                     <input type="hidden" name="portion_size" id="save-portion">
                     <input type="hidden" name="health_notes" id="save-notes">
                     <div class="d-flex gap-sm">
-                        <button type="submit" class="btn btn-primary btn-lg">💾 Save This Meal</button>
+                        <button type="submit" class="btn btn-primary btn-lg">Save This Meal</button>
                         <button type="button" id="scan-discard-btn" class="btn btn-secondary">Discard</button>
                     </div>
                 </form>
@@ -105,7 +101,7 @@
 
         <!-- Manual Entry -->
         <div class="card fade-in-up">
-            <h3 style="margin-bottom: var(--space-lg);">✏️ Manual Entry</h3>
+            <h3 style="margin-bottom: var(--space-lg);">Manual Entry</h3>
             <form method="POST">
                 {{ form.hidden_tag() }}
                 <div class="form-row">
@@ -137,8 +133,7 @@
             {% for meal in recent %}
             <li class="reminder-item">
                 <div class="reminder-icon" style="background: #ecfdf5; color: var(--success);">
-                    {% if meal.meal_type == 'breakfast' %}🌅{% elif meal.meal_type == 'lunch' %}☀️{% elif meal.meal_type
-                    == 'dinner' %}🌙{% else %}🍎{% endif %}
+                    {{ meal.meal_type[0]|upper }}
                 </div>
                 <div class="reminder-content">
                     <div class="reminder-title">{{ meal.food_items[:50] }}{% if meal.ai_analyzed %} <span

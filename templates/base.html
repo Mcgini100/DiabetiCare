@@ -43,7 +43,7 @@
         <nav class="navbar" id="main-navbar">
             <div class="navbar-inner">
                 <a href="{{ url_for('dashboard.index') }}" class="navbar-brand">
-                    <span class="logo-icon">💙</span>
+                    <span class="logo-icon">♥</span>
                     DiabetiCare
                 </a>
 
@@ -51,27 +51,27 @@
 
                 <ul class="navbar-nav" id="navbar-nav">
                     <li><a href="{{ url_for('dashboard.index') }}"
-                            class="{% if request.endpoint == 'dashboard.index' %}active{% endif %}">🏠 Dashboard</a>
+                            class="{% if request.endpoint == 'dashboard.index' %}active{% endif %}">Dashboard</a>
                     </li>
                     <li><a href="{{ url_for('glucose.log') }}"
-                            class="{% if request.blueprint == 'glucose' %}active{% endif %}">🩸 Glucose</a></li>
+                            class="{% if request.blueprint == 'glucose' %}active{% endif %}">Glucose</a></li>
                     <li><a href="{{ url_for('medication.list_medications') }}"
-                            class="{% if request.blueprint == 'medication' %}active{% endif %}">💊 Medication</a></li>
+                            class="{% if request.blueprint == 'medication' %}active{% endif %}">Medication</a></li>
                     <li><a href="{{ url_for('diet.log_meal') }}"
-                            class="{% if request.blueprint == 'diet' %}active{% endif %}">🥗 Diet</a></li>
+                            class="{% if request.blueprint == 'diet' %}active{% endif %}">Diet</a></li>
                     <li><a href="{{ url_for('activity.log_exercise') }}"
-                            class="{% if request.blueprint == 'activity' %}active{% endif %}">🏃 Activity</a></li>
+                            class="{% if request.blueprint == 'activity' %}active{% endif %}">Activity</a></li>
                     <li><a href="{{ url_for('education.index') }}"
-                            class="{% if request.blueprint == 'education' %}active{% endif %}">📚 Learn</a></li>
+                            class="{% if request.blueprint == 'education' %}active{% endif %}">Learn</a></li>
                     <li><a href="{{ url_for('community.forums') }}"
-                            class="{% if request.blueprint == 'community' %}active{% endif %}">👥 Community</a></li>
+                            class="{% if request.blueprint == 'community' %}active{% endif %}">Community</a></li>
                 </ul>
 
                 <div class="navbar-user">
                     <a href="{{ url_for('settings.index') }}" class="user-avatar" title="Settings">
                         {{ current_user.name[0]|upper if current_user.name else 'U' }}
                     </a>
-                    <button class="btn-icon btn-secondary" id="theme-toggle" title="Toggle Dark Mode">🌙</button>
+                    <button class="btn-icon btn-secondary" id="theme-toggle" title="Toggle Dark Mode">◑</button>
                 </div>
             </div>
         </nav>
@@ -113,7 +113,7 @@
         {% if current_user.is_authenticated and current_user.onboarding_complete %}
         <!-- Footer -->
         <footer class="footer">
-            <p>© 2026 DiabetiCare — Your diabetes self-management companion 💙</p>
+            <p>© 2026 DiabetiCare — Your diabetes self-management companion</p>
         </footer>
         {% endif %}
     </div>

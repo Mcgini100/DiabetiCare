@@ -2,7 +2,7 @@
 {% block title %}Log Exercise — DiabetiCare{% endblock %}
 {% block content %}
 <div class="page-header">
-    <h1>🏃 Physical Activity</h1>
+    <h1>Physical Activity</h1>
     <p>Track your exercise and stay active</p>
 </div>
 <!-- Weekly Progress -->
@@ -16,10 +16,10 @@
             style="width: {{ [weekly_total / 150 * 100, 100]|min }}%; background: linear-gradient(90deg, var(--accent), var(--accent-light));">
         </div>
     </div>
-    <p class="text-muted mt-sm" style="font-size: var(--font-size-sm);">{{ 'Goal reached! 🎉' if weekly_total >= 150
+    <p class="text-muted mt-sm" style="font-size: var(--font-size-sm);">{{ 'Goal reached!' if weekly_total >= 150
         else '%d minutes remaining this week.' % (150 - weekly_total) }}</p>
 </div>
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg);">
+<div class="page-grid">
     <div class="card fade-in-up">
         <h3 style="margin-bottom: var(--space-lg);">Log Exercise</h3>
         <form method="POST">
@@ -46,7 +46,7 @@
         <ul class="reminder-list">
             {% for e in recent %}
             <li class="reminder-item">
-                <div class="reminder-icon" style="background: #fff7ed; color: var(--accent);">🏃</div>
+                <div class="reminder-icon" style="background: #fff7ed; color: var(--accent);">&#x25CF;</div>
                 <div class="reminder-content">
                     <div class="reminder-title">{{ e.activity_type|capitalize }} · {{ e.duration_minutes }} min <span
                             class="badge badge-{{ 'success' if e.intensity == 'low' else ('warning' if e.intensity == 'moderate' else 'danger') }}">{{
@@ -60,7 +60,6 @@
         <a href="{{ url_for('activity.history') }}" class="btn btn-sm btn-secondary mt-md">View All</a>
         {% else %}
         <div class="empty-state">
-            <div class="icon">🏃</div>
             <h3>No activities logged</h3>
         </div>
         {% endif %}

@@ -2,7 +2,7 @@
 {% block title %}Appointments — DiabetiCare{% endblock %}
 {% block content %}
 <div class="page-header">
-    <h1>📅 Appointments & Tests</h1>
+    <h1>Appointments & Tests</h1>
     <p>Manage your medical appointments</p>
 </div>
 <div class="d-flex justify-between align-center mb-lg">
@@ -14,7 +14,7 @@
     <ul class="reminder-list">
         {% for appt in upcoming %}
         <li class="reminder-item">
-            <div class="reminder-icon" style="background: #eff6ff; color: var(--info);">📋</div>
+            <div class="reminder-icon" style="background: #eff6ff; color: var(--info);">&#x2022;</div>
             <div class="reminder-content" style="flex: 1;">
                 <div class="reminder-title">{{ appt.title }}</div>
                 <div class="reminder-time">{{ appt.date_time.strftime('%d %b %Y, %I:%M %p') }}{% if appt.doctor_name %}
@@ -25,7 +25,7 @@
                     class="btn btn-sm btn-primary">Complete</a>
                 <form method="POST" action="{{ url_for('appointments.delete', appt_id=appt.id) }}"
                     style="display:inline;" onsubmit="return confirm('Delete?');"><input type="hidden" name="csrf_token"
-                        value="{{ csrf_token() }}"><button class="btn btn-sm btn-danger">🗑</button></form>
+                        value="{{ csrf_token() }}"><button class="btn btn-sm btn-danger">&times;</button></form>
             </div>
         </li>
         {% endfor %}

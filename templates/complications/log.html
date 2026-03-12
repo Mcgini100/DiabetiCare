@@ -2,10 +2,10 @@
 {% block title %}Complications Tracker — DiabetiCare{% endblock %}
 {% block content %}
 <div class="page-header">
-    <h1>⚠️ Complications Tracker</h1>
+    <h1>Complications Tracker</h1>
     <p>Log symptoms, events, and access emergency guidance</p>
 </div>
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg);">
+<div class="page-grid">
     <div class="card fade-in-up">
         <h3 style="margin-bottom: var(--space-lg);">Log Event</h3>
         <form method="POST">
@@ -30,7 +30,7 @@
     <div>
         <!-- Emergency Guidance -->
         <div class="card fade-in-up mb-lg" style="border-left: 4px solid var(--danger);">
-            <h3 style="color: var(--danger); margin-bottom: var(--space-md);">🚨 Emergency Guidance</h3>
+            <h3 style="color: var(--danger); margin-bottom: var(--space-md);">Emergency Guidance</h3>
             {% for key, info in guidance.items() %}
             <div style="margin-bottom: var(--space-lg);">
                 <h4>{{ info.icon }} {{ info.title }}</h4>
@@ -47,7 +47,7 @@
             <ul class="reminder-list">
                 {% for c in history[:5] %}
                 <li class="reminder-item">
-                    <div class="reminder-icon" style="background: #fef2f2; color: var(--danger);">⚠️</div>
+                    <div class="reminder-icon" style="background: #fef2f2; color: var(--danger);">!</div>
                     <div class="reminder-content">
                         <div class="reminder-title">{{ c.complication_type|replace('_', ' ')|capitalize }} <span
                                 class="badge badge-{{ 'warning' if c.severity == 'mild' else ('danger' if c.severity == 'severe' else 'warning') }}">{{

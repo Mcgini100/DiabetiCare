@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="page-header">
-    <h1>📈 Blood Glucose Trends</h1>
+    <h1>Blood Glucose Trends</h1>
     <p>Track your blood glucose readings over time</p>
 </div>
 
@@ -20,7 +20,7 @@
 <div class="dashboard-grid mb-xl">
     <div class="card">
         <div class="stat-card">
-            <div class="card-icon success">📊</div>
+            <div class="card-icon success">&#x25CF;</div>
             <div>
                 <div class="stat-label">Average</div>
                 <div class="stat-value" style="color: var(--primary);">{{ avg }} <span
@@ -30,7 +30,7 @@
     </div>
     <div class="card">
         <div class="stat-card">
-            <div class="card-icon danger">📈</div>
+            <div class="card-icon danger">&#x2191;</div>
             <div>
                 <div class="stat-label">Highest</div>
                 <div class="stat-value" style="color: var(--danger);">{{ highest }} <span
@@ -40,7 +40,7 @@
     </div>
     <div class="card">
         <div class="stat-card">
-            <div class="card-icon warning">📉</div>
+            <div class="card-icon warning">&#x2193;</div>
             <div>
                 <div class="stat-label">Lowest</div>
                 <div class="stat-value" style="color: var(--warning);">{{ lowest }} <span
@@ -50,7 +50,7 @@
     </div>
     <div class="card">
         <div class="stat-card">
-            <div class="card-icon info">📝</div>
+            <div class="card-icon info">&#x25CF;</div>
             <div>
                 <div class="stat-label">Total Readings</div>
                 <div class="stat-value" style="color: var(--info);">{{ readings|length }}</div>
@@ -64,7 +64,7 @@
     <div class="card-header">
         <h3>Glucose Trend</h3>
         <div class="d-flex gap-sm">
-            <a href="{{ url_for('glucose.export') }}" class="btn btn-sm btn-secondary">📥 Export CSV</a>
+            <a href="{{ url_for('glucose.export') }}" class="btn btn-sm btn-secondary">Export CSV</a>
             <a href="{{ url_for('glucose.log') }}" class="btn btn-sm btn-primary">+ Log Reading</a>
         </div>
     </div>
@@ -74,7 +74,7 @@
     </div>
     {% else %}
     <div class="empty-state">
-        <div class="icon">📊</div>
+        <div class="icon">&#x25CF;</div>
         <h3>No data for this period</h3>
         <p>Log some readings to see your trends here.</p>
     </div>
@@ -116,7 +116,7 @@
                         <form method="POST" action="{{ url_for('glucose.delete', reading_id=r.id) }}"
                             style="display: inline;" onsubmit="return confirm('Delete this reading?');">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                            <button type="submit" class="btn btn-sm btn-danger">🗑</button>
+                            <button type="submit" class="btn btn-sm btn-danger">&times;</button>
                         </form>
                     </td>
                 </tr>
