@@ -15,11 +15,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="DiabetiCare">
 
-    <!-- PWA Icons -->
-    <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='icons/icon-192.png') }}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='icons/icon-192.png') }}">
-    <link rel="apple-touch-icon" sizes="152x152" href="{{ url_for('static', filename='icons/icon-152.png') }}">
-    <link rel="apple-touch-icon" sizes="144x144" href="{{ url_for('static', filename='icons/icon-144.png') }}">
+    <!-- Favicon and PWA Icons -->
+    <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='images/logo.jpeg') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/logo.jpeg') }}">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,7 +29,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 
     <!-- App CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=1.2">
 
     {% block extra_css %}{% endblock %}
 </head>
@@ -43,7 +41,7 @@
         <nav class="navbar" id="main-navbar">
             <div class="navbar-inner">
                 <a href="{{ url_for('dashboard.index') }}" class="navbar-brand">
-                    <span class="logo-icon">♥</span>
+                    <img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="Logo" class="logo-icon" style="height: 28px; width: 28px; border-radius: 50%; object-fit: cover; margin-right: var(--space-xs);">
                     DiabetiCare
                 </a>
 
@@ -94,14 +92,30 @@
         <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-        <div style="max-width: 1200px; margin: 0 auto; padding: 1rem 1.5rem 0;">
+        <div class="toast-container" id="toast-container">
             {% for category, message in messages %}
-            <div class="alert alert-{{ category }}" role="alert">
-                <span>{{ message }}</span>
-                <button class="alert-dismiss" onclick="this.parentElement.remove()">×</button>
+            <div class="toast toast-{{ category }}" role="alert">
+                <div class="toast-icon">
+                    {% if category == 'success' %}✓{% elif category == 'danger' %}✕{% elif category == 'warning' %}!{% else %}i{% endif %}
+                </div>
+                <div class="toast-message">{{ message }}</div>
+                <button class="toast-close" onclick="this.closest('.toast').remove()" aria-label="Close">×</button>
             </div>
             {% endfor %}
         </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const toasts = document.querySelectorAll('.toast');
+                toasts.forEach(toast => {
+                    setTimeout(() => {
+                        toast.style.opacity = '0';
+                        toast.style.transform = window.innerWidth <= 480 ? 'translateY(100%)' : 'translateX(100%)';
+                        setTimeout(() => toast.remove(), 300);
+                    }, 5000);
+                });
+            });
+        </script>
         {% endif %}
         {% endwith %}
 

@@ -21,6 +21,22 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Sign In')
 
 
+class ForgotPasswordForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    submit = SubmitField('Request Password Reset')
+
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField('New Password', validators=[DataRequired(), Length(min=6)])
+    confirm_password = PasswordField('Confirm New Password', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Reset Password')
+
+
+class MagicLinkForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    submit = SubmitField('Send Magic Link')
+
+
 class ProfileForm(FlaskForm):
     age = IntegerField('Age', validators=[Optional(), NumberRange(min=1, max=120)])
     gender = SelectField('Gender', choices=[

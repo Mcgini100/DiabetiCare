@@ -44,7 +44,7 @@
 <!-- Stat Cards -->
 <div class="dashboard-grid stagger">
     <!-- Latest Glucose -->
-    <div class="card fade-in-up">
+    <div class="card card-with-bg fade-in-up" style="background-image: url('{{ url_for('static', filename='images/glucose.jpg') }}');">
         <div class="stat-card">
             <div class="card-icon primary">&#x2B24;</div>
             <div>
@@ -70,7 +70,7 @@
     </div>
 
     <!-- Weekly Average -->
-    <div class="card fade-in-up">
+    <div class="card card-with-bg fade-in-up" style="background-image: url('{{ url_for('static', filename='images/glucose.jpg') }}');">
         <div class="stat-card">
             <div class="card-icon success">&#x2191;</div>
             <div>
@@ -88,7 +88,7 @@
     </div>
 
     <!-- Medication Adherence -->
-    <div class="card fade-in-up">
+    <div class="card card-with-bg fade-in-up" style="background-image: url('{{ url_for('static', filename='images/medication.jpg') }}');">
         <div class="stat-card">
             <div class="card-icon warning">&#x2B24;</div>
             <div>
@@ -105,7 +105,7 @@
     </div>
 
     <!-- Exercise This Week -->
-    <div class="card fade-in-up">
+    <div class="card card-with-bg fade-in-up" style="background-image: url('{{ url_for('static', filename='images/exercise.jpg') }}');">
         <div class="stat-card">
             <div class="card-icon accent">&#x2B24;</div>
             <div>
@@ -149,7 +149,7 @@
 <div
     style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-xl);">
     <!-- Today's Medications -->
-    <div class="card fade-in-up">
+    <div class="card card-with-bg fade-in-up" style="background-image: url('{{ url_for('static', filename='images/medication.jpg') }}');">
         <div class="card-header">
             <h3>Today's Medications</h3>
             <a href="{{ url_for('medication.list_medications') }}" class="btn btn-sm btn-secondary">Manage</a>
@@ -185,7 +185,7 @@
     </div>
 
     <!-- Upcoming Appointments -->
-    <div class="card fade-in-up">
+    <div class="card card-with-bg fade-in-up" style="background-image: url('{{ url_for('static', filename='images/appointment.jpg') }}');">
         <div class="card-header">
             <h3>Upcoming Appointments</h3>
             <a href="{{ url_for('appointments.add_appointment') }}" class="btn btn-sm btn-secondary">+ New</a>
@@ -219,7 +219,7 @@
 {% if active_goals or recent_badges %}
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--space-lg);">
     {% if active_goals %}
-    <div class="card fade-in-up">
+    <div class="card card-with-bg fade-in-up" style="background-image: url('{{ url_for('static', filename='images/learn.jpg') }}');">
         <div class="card-header">
             <h3>Active Goals</h3>
         </div>
@@ -241,7 +241,7 @@
     {% endif %}
 
     {% if recent_badges %}
-    <div class="card fade-in-up">
+    <div class="card card-with-bg fade-in-up" style="background-image: url('{{ url_for('static', filename='images/learn.jpg') }}');">
         <div class="card-header">
             <h3>Recent Badges</h3>
         </div>

@@ -1,7 +1,10 @@
 import os
 from flask import Flask, redirect, url_for, render_template, send_from_directory
 from config import Config
-from extensions import db, login_manager, bcrypt, babel, migrate, csrf
+from extensions import db, login_manager, bcrypt, babel, migrate, csrf, mail
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def create_app():
@@ -18,6 +21,7 @@ def create_app():
     babel.init_app(app)
     migrate.init_app(app, db)
     csrf.init_app(app)
+    mail.init_app(app)
 
     # Register Blueprints
     from views.auth import auth_bp

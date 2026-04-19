@@ -219,7 +219,14 @@
         formData.append('food_image', selectedFile);
 
         try {
-            const resp = await fetch('{{ url_for("diet.scan_food") }}', { method: 'POST', body: formData });
+            const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+            const resp = await fetch('{{ url_for("diet.scan_food") }}', { 
+                method: 'POST', 
+                headers: {
+                    'X-CSRFToken': csrfToken
+                },
+                body: formData 
+            });
             const data = await resp.json();
             loading.style.display = 'none';
 

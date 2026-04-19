@@ -231,9 +231,11 @@ img {
     display: flex;
     align-items: center;
     gap: var(--space-sm);
-    font-weight: 700;
-    font-size: var(--font-size-xl);
+    font-weight: 800;
+    font-size: var(--font-size-2xl);
+    font-family: 'Frutiger', 'Frutiger Linotype', 'Segoe UI', Arial, sans-serif;
     color: var(--primary);
+    letter-spacing: -0.02em;
 }
 
 .navbar-brand .logo-icon {
@@ -333,6 +335,64 @@ img {
 [data-theme="dark"] .card-glass {
     background: rgba(30, 41, 59, 0.6);
     border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.card-with-bg {
+    position: relative;
+    overflow: hidden;
+    color: white;
+    background-size: cover !important;
+    background-position: center !important;
+    border: none;
+}
+
+.card-with-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.65) 100%);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.card-with-bg > * {
+    position: relative;
+    z-index: 1;
+}
+
+.card-with-bg .stat-label,
+.card-with-bg .text-muted {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.card-with-bg h3,
+.card-with-bg .stat-value {
+    color: white !important;
+}
+
+.card-with-bg .card-icon {
+    background: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white !important;
+}
+
+.card-with-bg .btn-secondary {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+.card-with-bg .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.card-with-bg .empty-state h3 {
+    color: white;
+}
+
+.card-with-bg .empty-state p {
+    color: rgba(255, 255, 255, 0.85);
 }
 
 .card-header {
@@ -2033,5 +2093,115 @@ tr:last-child td {
     .btn-primary:hover,
     .btn-accent:hover {
         transform: none;
+    }
+}
+
+/* ─── Toast Notifications ──────────────────── */
+.toast-container {
+    position: fixed;
+    top: var(--space-lg);
+    right: var(--space-lg);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    pointer-events: none;
+}
+
+.toast {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-sm);
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: var(--space-md);
+    box-shadow: var(--shadow-lg);
+    border-left: 4px solid var(--border);
+    min-width: 300px;
+    max-width: 400px;
+    pointer-events: auto;
+    animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    transition: all 0.3s ease;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.toast-success { border-left-color: var(--success); }
+.toast-success .toast-icon { color: var(--success); background: #ecfdf5; }
+
+.toast-danger { border-left-color: var(--danger); }
+.toast-danger .toast-icon { color: var(--danger); background: #fef2f2; }
+
+.toast-warning { border-left-color: var(--warning); }
+.toast-warning .toast-icon { color: var(--warning); background: #fffbeb; }
+
+.toast-info { border-left-color: var(--info); }
+.toast-info .toast-icon { color: var(--info); background: #eff6ff; }
+
+.toast-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: var(--font-size-sm);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.toast-message {
+    flex: 1;
+    color: var(--text);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    word-break: break-word;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 0 var(--space-xs);
+    margin-top: -2px;
+    transition: var(--transition);
+}
+
+.toast-close:hover {
+    color: var(--text);
+}
+
+@media (max-width: 480px) {
+    .toast-container {
+        top: auto;
+        bottom: var(--space-md);
+        left: var(--space-md);
+        right: var(--space-md);
+    }
+    .toast {
+        min-width: unset;
+        width: 100%;
+    }
+    @keyframes slideInRight {
+        from {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
     }
 }

@@ -1,6 +1,8 @@
 from datetime import datetime, timezone
 from extensions import db, login_manager
 from flask_login import UserMixin
+from itsdangerous import URLSafeTimedSerializer as Serializer
+from flask import current_app
 
 
 @login_manager.user_loader
@@ -23,6 +25,7 @@ class User(db.Model, UserMixin):
     font_size = db.Column(db.String(10), default='medium')
     high_contrast = db.Column(db.Boolean, default=False)
     reminder_medication = db.Column(db.Boolean, default=True)
+    google_id = db.Column(db.String(100), unique=True)
     reminder_glucose = db.Column(db.Boolean, default=True)
     reminder_appointments = db.Column(db.Boolean, default=False)
     receive_tips = db.Column(db.Boolean, default=True)
@@ -47,6 +50,32 @@ class User(db.Model, UserMixin):
     goals = db.relationship('Goal', backref='user', lazy='dynamic')
     badges = db.relationship('Badge', backref='user', lazy='dynamic')
     feedbacks = db.relationship('Feedback', backref='user', lazy='dynamic')
+
+    def get_reset_token(self):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        return s.dumps({'user_id': self.id})
+
+    @staticmethod
+    def verify_reset_token(token, expires_sec=1800):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            user_id = s.loads(token, max_age=expires_sec)['user_id']
+        except Exception:
+            return None
+        return User.query.get(user_id)
+
+    def get_magic_token(self):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        return s.dumps({'magic_user_id': self.id})
+
+    @staticmethod
+    def verify_magic_token(token, expires_sec=1800):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            user_id = s.loads(token, max_age=expires_sec)['magic_user_id']
+        except Exception:
+            return None
+        return User.query.get(user_id)
 
 
 # ─── Blood Glucose ──────────────────────────────────────

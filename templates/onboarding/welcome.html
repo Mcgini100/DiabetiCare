@@ -4,7 +4,7 @@
 {% block content %}
 <div class="welcome-page" style="margin: calc(-1 * var(--space-lg)); min-height: 100vh;">
     <div class="welcome-card">
-        <div class="welcome-logo">♥</div>
+        <img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="DiabetiCare Logo" class="welcome-logo" style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%; margin: 0 auto var(--space-md); display: block; box-shadow: 0 4px 6px -1px var(--shadow-color);">
         <h1>DiabetiCare</h1>
         <p>Your personal diabetes self-management assistant. Track your health, stay informed, and take control of your
             wellbeing.</p>

@@ -1,8 +1,9 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask_mail import Message
 from flask_login import login_user, logout_user, login_required, current_user
-from extensions import db, bcrypt
+from extensions import db, bcrypt, mail
 from models import User
-from forms import RegistrationForm, LoginForm, ProfileForm, PreferencesForm
+from forms import RegistrationForm, LoginForm, ProfileForm, PreferencesForm, ForgotPasswordForm, ResetPasswordForm, MagicLinkForm
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -123,3 +124,93 @@ def complete_onboarding():
     db.session.commit()
     flash('Welcome to DiabetiCare! 🎉 Your journey starts here.', 'success')
     return redirect(url_for('dashboard.index'))
+
+
+@auth_bp.route('/reset-password', methods=['GET', 'POST'])
+def reset_request():
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard.index'))
+    form = ForgotPasswordForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data.lower()).first()
+        if user:
+            token = user.get_reset_token()
+            reset_url = url_for('auth.reset_token', token=token, _external=True)
+            msg = Message('Password Reset Request', recipients=[user.email])
+            msg.body = f'''To reset your password, visit the following link:
+{reset_url}
+
+If you did not make this request then simply ignore this email and no changes will be made.
+'''
+            try:
+                mail.send(msg)
+            except Exception as e:
+                print(f"Error sending email: {e}")
+                flash('There was an issue sending the email. Please try again later.', 'danger')
+                return redirect(url_for('auth.login'))
+        flash('If that email is in our system, you will receive a password reset link.', 'info')
+        return redirect(url_for('auth.login'))
+    return render_template('onboarding/forgot_password.html', form=form)
+
+
+@auth_bp.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_token(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard.index'))
+    user = User.verify_reset_token(token)
+    if user is None:
+        flash('That is an invalid or expired token.', 'warning')
+        return redirect(url_for('auth.reset_request'))
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        hashed_pw = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user.password_hash = hashed_pw
+        db.session.commit()
+        flash('Your password has been updated! You are now able to log in.', 'success')
+        return redirect(url_for('auth.login'))
+    return render_template('onboarding/reset_password.html', form=form)
+
+
+@auth_bp.route('/login/magic', methods=['GET', 'POST'])
+def magic_link_request():
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard.index'))
+    form = MagicLinkForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data.lower()).first()
+        if user:
+            token = user.get_magic_token()
+            magic_url = url_for('auth.magic_link_login', token=token, _external=True)
+            msg = Message('Your Secure Magic Link', recipients=[user.email])
+            msg.body = f'''Click the link below to instantly log in to your account:
+{magic_url}
+
+This link will expire in 30 minutes. If you did not request this, you can safely ignore this email.
+'''
+            try:
+                mail.send(msg)
+            except Exception as e:
+                print(f"Error sending email: {e}")
+                flash('There was an issue sending the email. Please try again later.', 'danger')
+                return redirect(url_for('auth.login'))
+        flash('If your email is registered, a secure login link has been sent to it.', 'info')
+        return redirect(url_for('auth.login'))
+    return render_template('onboarding/magic_link.html', form=form)
+
+
+@auth_bp.route('/login/magic/<token>')
+def magic_link_login(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard.index'))
+    user = User.verify_magic_token(token)
+    if user is None:
+        flash('The magic link is invalid or has expired.', 'warning')
+        return redirect(url_for('auth.login'))
+    
+    login_user(user)
+    next_page = request.args.get('next')
+    if not user.onboarding_complete:
+        return redirect(url_for('auth.profile_setup'))
+    flash(f'Welcome back, {user.name}!', 'success')
+    return redirect(next_page or url_for('dashboard.index'))
+

@@ -5,8 +5,7 @@
 <div class="auth-page" style="margin: calc(-1 * var(--space-lg)); min-height: 100vh;">
     <div class="auth-card">
         <div style="text-align: center; margin-bottom: var(--space-lg);">
-            <div class="welcome-logo"
-                style="width: 56px; height: 56px; font-size: 1.8rem; margin: 0 auto var(--space-md);">&#x2665;</div>
+            <img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="DiabetiCare Logo" class="welcome-logo" style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%; margin: 0 auto var(--space-md); display: block; box-shadow: 0 4px 6px -1px var(--shadow-color);">
             <h2 style="margin-bottom: var(--space-xs);">Create Your Account</h2>
             <p class="text-muted">Join DiabetiCare and take control of your health</p>
         </div>
@@ -49,6 +48,16 @@
 
             {{ form.submit(class="btn btn-primary btn-lg btn-block") }}
         </form>
+
+        <div style="margin: var(--space-md) 0; position: relative; text-align: center;">
+            <hr style="border: none; border-top: 1px solid var(--border-color); margin: 0;">
+            <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 0 var(--space-sm); color: var(--text-muted); font-size: var(--font-size-sm);">or</span>
+        </div>
+
+        <a href="{{ url_for('auth.magic_link_request') }}" class="btn btn-outline btn-block mb-md" style="display: flex; align-items: center; justify-content: center; gap: var(--space-sm);">
+            <span style="font-size: 1.2rem;">&#x2728;</span>
+            Sign up with Email Link
+        </a>
 
         <p class="text-center mt-lg" style="color: var(--text-muted); font-size: var(--font-size-sm);">
             Already have an account? <a href="{{ url_for('auth.login') }}">Sign In</a>
