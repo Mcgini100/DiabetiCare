@@ -2,7 +2,7 @@
 
 DiabetiCare is a comprehensive, centralized web application designed to empower individuals managing diabetes. It provides robust tools for tracking health metrics, managing medications, understanding nutrition, and participating in a supportive community.
 
-## 🚀 Features
+## Features
 
 * **Health Tracking Analytics:** Log, track, and visualize blood glucose levels, physical activities, and meal macros.
 * **AI-Powered Diet Insights:** Utilizes Google Generative AI to analyze meal compositions and offer dietary insights.
@@ -12,7 +12,7 @@ DiabetiCare is a comprehensive, centralized web application designed to empower 
 * **Supportive Community:** Participate in forums, post questions, share tips, and send secure messages to peers or healthcare providers.
 * **Accessibility Focused:** Built-in settings for high-contrast viewing, customizable font sizes, and multiple language support.
 
-## 🛠 Tech Stack
+## Tech Stack
 
 * **Backend:** Python, Flask, SQLAlchemy 
 * **Database:** SQLite (Development) / PostgreSQL (Production)
@@ -20,18 +20,18 @@ DiabetiCare is a comprehensive, centralized web application designed to empower 
 * **Frontend:** Jinja2 templates, Custom CSS/JS (Mobile-Responsive)
 * **Integrations:** Google Generative AI (Gemini), ReportLab, APScheduler
 
-## 📋 Prerequisites
+## Prerequisites
 
 Before you begin, ensure you have met the following requirements:
 * Python 3.9+ installed
 * PostgreSQL (Optional, if moving to production)
 * A valid Google Gemini API Key
 
-## ⚙️ Installation & Local Setup
+## Installation & Local Setup
 
 1. **Clone the repository and enter the directory:**
     ```bash
-    git clone https://github.com/yourusername/diabeticare.git
+    git clone https://github.com/mcgini100/diabeticare.git
     cd diabeticare
     ```
 
@@ -74,7 +74,7 @@ Before you begin, ensure you have met the following requirements:
 6. **Open the Application:**
     Navigate to `http://127.0.0.1:5000` in your web browser.
 
-## 📁 Project Structure
+## Project Structure
 
 ```text
 DiabetiCare/
