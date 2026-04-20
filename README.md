@@ -93,7 +93,7 @@ DiabetiCare/
 └── vercel.json           # Vercel deployment configuration
 ```
 
-## 🚀 Deployment
+## Deployment
 
 DiabetiCare is configured to easily deploy to Vercel or any standard WSGI/ASGI server. 
 When deploying, make sure to set the underlying environment variables in your hosting provider's dashboard and use PostgreSQL instead of SQLite (update `DATABASE_URL`).
