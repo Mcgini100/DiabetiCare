@@ -21,8 +21,17 @@ class Config:
 
     # Database: Use DATABASE_URL env var for production (Neon PostgreSQL)
     # Falls back to SQLite for local development
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'diabeticare.db')
+    db_url = os.environ.get('DATABASE_URL')
+    if db_url:
+        # Some providers use postgres:// but SQLAlchemy requires postgresql://
+        if db_url.startswith("postgres://"):
+            db_url = db_url.replace("postgres://", "postgresql://", 1)
+        SQLALCHEMY_DATABASE_URI = db_url
+    elif os.environ.get('VERCEL'):
+        # Use /tmp on Vercel to avoid read-only filesystem error if no DB URL is set
+        SQLALCHEMY_DATABASE_URI = 'sqlite:////tmp/diabeticare.db'
+    else:
+        SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'diabeticare.db')
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 

@@ -70,8 +70,11 @@ def create_app():
     # Create database tables
     with app.app_context():
         import models  # noqa: F401
-        db.create_all()
-        seed_education_content()
+        try:
+            db.create_all()
+            seed_education_content()
+        except Exception as e:
+            print(f"Database initialization error: {e}")
 
     return app
 
