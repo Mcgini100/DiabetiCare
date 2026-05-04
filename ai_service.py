@@ -1,47 +1,66 @@
 """
-DiabetiCare AI Service — Powered by Google Gemini
+DiabetiCare AI Service — Powered by Google Gemini (REST API)
 Provides food image analysis and glucometer OCR.
+Uses direct HTTP requests to the Gemini REST API to avoid heavy gRPC dependencies.
 """
 import os
 import json
 import re
 import base64
+import requests
 
-# Lazy-load Gemini SDK
-_model = None
+GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
+GEMINI_MODEL = "gemini-2.0-flash"
 
 
-def _get_model():
-    """Initialize Gemini model lazily."""
-    global _model
-    if _model is not None:
-        return _model
-
-    api_key = os.environ.get('GEMINI_API_KEY')
-    if not api_key:
-        return None
-
-    try:
-        import google.generativeai as genai
-        genai.configure(api_key=api_key)
-        _model = genai.GenerativeModel('gemini-2.0-flash')
-        return _model
-    except Exception as e:
-        print(f'[AI] Gemini init error: {e}')
-        return None
+def _get_api_key():
+    """Get Gemini API key from environment."""
+    return os.environ.get('GEMINI_API_KEY')
 
 
 def _parse_json_response(text):
     """Extract JSON from Gemini response (handles markdown code blocks)."""
-    # Try to extract JSON from markdown code block
     match = re.search(r'```(?:json)?\s*\n?(.*?)\n?```', text, re.DOTALL)
     if match:
         text = match.group(1)
-    # Try parsing directly
     try:
         return json.loads(text.strip())
     except json.JSONDecodeError:
         return None
+
+
+def _call_gemini(parts):
+    """
+    Call Gemini REST API with a list of content parts.
+    parts: list of dicts, each either {'text': '...'} or {'inline_data': {'mime_type': '...', 'data': '<base64>'}}
+    """
+    api_key = _get_api_key()
+    if not api_key:
+        return None, 'AI service not configured. Please set GEMINI_API_KEY.'
+
+    url = f"{GEMINI_API_BASE}/{GEMINI_MODEL}:generateContent?key={api_key}"
+    payload = {
+        "contents": [
+            {"parts": parts}
+        ],
+        "generationConfig": {
+            "temperature": 0.2,
+            "maxOutputTokens": 1024
+        }
+    }
+
+    try:
+        resp = requests.post(url, json=payload, timeout=30)
+        resp.raise_for_status()
+        data = resp.json()
+        text = data["candidates"][0]["content"]["parts"][0]["text"]
+        return text, None
+    except requests.exceptions.Timeout:
+        return None, 'AI request timed out. Please try again.'
+    except requests.exceptions.HTTPError as e:
+        return None, f'AI API error: {e.response.status_code} — {e.response.text[:200]}'
+    except Exception as e:
+        return None, f'AI analysis failed: {str(e)}'
 
 
 def analyze_food_image(image_bytes, mime_type='image/jpeg'):
@@ -60,10 +79,6 @@ def analyze_food_image(image_bytes, mime_type='image/jpeg'):
         health_notes: str - diabetes-specific dietary advice
         confidence: str - confidence level (low, medium, high)
     """
-    model = _get_model()
-    if model is None:
-        return {'error': 'AI service not configured. Please set GEMINI_API_KEY.'}
-
     prompt = """You are a nutrition expert AI for a diabetes management app.
 Analyze this food image and provide a detailed nutritional breakdown.
 
@@ -85,17 +100,22 @@ Be as accurate as possible with calorie and nutrient estimates based on typical 
 If you cannot identify food in the image, set confidence to "low" and estimate conservatively.
 Consider common African/Zimbabwean foods if they appear (sadza, kapenta, muriwo, etc.)."""
 
-    try:
-        response = model.generate_content([
-            prompt,
-            {'mime_type': mime_type, 'data': image_bytes}
-        ])
-        result = _parse_json_response(response.text)
-        if result is None:
-            return {'error': 'Could not parse AI response. Please try again.'}
-        return result
-    except Exception as e:
-        return {'error': f'AI analysis failed: {str(e)}'}
+    # Encode image bytes to base64 string for REST API
+    image_b64 = base64.b64encode(image_bytes).decode('utf-8')
+
+    parts = [
+        {"text": prompt},
+        {"inline_data": {"mime_type": mime_type, "data": image_b64}}
+    ]
+
+    text, error = _call_gemini(parts)
+    if error:
+        return {'error': error}
+
+    result = _parse_json_response(text)
+    if result is None:
+        return {'error': 'Could not parse AI response. Please try again.'}
+    return result
 
 
 def read_glucometer_image(image_bytes, mime_type='image/jpeg'):
@@ -109,10 +129,6 @@ def read_glucometer_image(image_bytes, mime_type='image/jpeg'):
         device_info: str - any device/brand info detected
         confidence: str - confidence level (low, medium, high)
     """
-    model = _get_model()
-    if model is None:
-        return {'error': 'AI service not configured. Please set GEMINI_API_KEY.'}
-
     prompt = """You are a medical device OCR expert for a diabetes management app.
 Look at this image of a glucometer (blood glucose meter) display and read the glucose value.
 
@@ -129,19 +145,23 @@ Return ONLY valid JSON (no markdown, no explanation) with this exact structure:
 If you cannot read the display clearly, set confidence to "low".
 If the image does not appear to be a glucometer, return: {"error": "No glucometer detected in image", "confidence": "low"}"""
 
-    try:
-        response = model.generate_content([
-            prompt,
-            {'mime_type': mime_type, 'data': image_bytes}
-        ])
-        result = _parse_json_response(response.text)
-        if result is None:
-            return {'error': 'Could not parse AI response. Please try again.'}
-        return result
-    except Exception as e:
-        return {'error': f'AI analysis failed: {str(e)}'}
+    image_b64 = base64.b64encode(image_bytes).decode('utf-8')
+
+    parts = [
+        {"text": prompt},
+        {"inline_data": {"mime_type": mime_type, "data": image_b64}}
+    ]
+
+    text, error = _call_gemini(parts)
+    if error:
+        return {'error': error}
+
+    result = _parse_json_response(text)
+    if result is None:
+        return {'error': 'Could not parse AI response. Please try again.'}
+    return result
 
 
 def is_ai_configured():
     """Check if the AI service is properly configured."""
-    return bool(os.environ.get('GEMINI_API_KEY'))
+    return bool(_get_api_key())
